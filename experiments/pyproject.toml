@@ -5,8 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "langfuse>=2.60.1",
     "notebook>=7.3.2",
     "ollama>=0.4.7",
+    "openai>=1.68.2",
     "pydantic>=2.10.6",
     "python-slugify>=8.0.4",
     "ruff>=0.10.0",
