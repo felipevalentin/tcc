@@ -1,48 +1,36 @@
-import pathlib
+from pathlib import Path
 import json
 import csv
-from slugify import slugify
+from collections import Counter
+from typing import Dict
+from models import Sample, GroundTruth
 
 
-def get_sample():
-    sample_path = pathlib.Path("../resources/sample.json")
-    with sample_path.open() as sample_file:
-        reader = json.load(sample_file)
-        sample = {}
-        for entry in reader:
-            entry_id = entry.pop("codigo")  # Remove "ID" and use it as the key
-            sample[entry_id] = entry
-    return sample
+def read_json_to_dict_of_samples(
+    file_path: Path = Path("../resources/sample.json"),
+) -> Dict[str, Sample]:
+    data = json.loads(file_path.read_text(encoding="utf-8"))
+    return {item["codigo"]: Sample(**item) for item in data}
 
 
-def get_ground_truth():
-    ground_truth_path = pathlib.Path("../resources/ground_truth.csv")
-    ground_truth = {}
-    with ground_truth_path.open() as ground_truth_file:
-        reader = csv.DictReader(ground_truth_file)
-        fieldnames = []
-        for header in reader.fieldnames:
-            header = slugify(header, separator="_")
-            if header == "datahoradom":
-                header = "data"
-            if header == "categoriadom":
-                header = "categoria"
-            fieldnames.append(header)
-        reader.fieldnames = fieldnames
+def read_csv_to_dict_of_ground_truth(
+    file_path: Path = Path("../resources/ground_truth.csv"),
+) -> Dict[int, GroundTruth]:
+    ground_truths = {}
+    with file_path.open(mode="r", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
         for row in reader:
-            row = {
-                key: (value if value != "NULL" else None) for key, value in row.items()
-            }
-            row_id = row.pop("codigo")
-            ground_truth[row_id] = row
-    return ground_truth
+            ground_truth = GroundTruth(**row)
+            ground_truths[ground_truth.codigo] = ground_truth
+    return ground_truths
 
 
-def calculate_null_of_consistent_values(sample, ground_truth):
-    cod_registro_info_sfinge_null_amount = 0
-    cod_municipio_null_amount = 0
-    for codigo in sample:
-        if ground_truth[codigo]["cod_registro_info_sfinge"] is None:
-            cod_registro_info_sfinge_null_amount += 1
-        if ground_truth[codigo]["municipio"] is None:
-            cod_municipio_null_amount += 1
+def calculate_null_values(samples: Dict[str, Sample]):
+    null_counts = Counter()
+
+    for sample in samples.values():
+        for field in sample.model_fields:
+            if getattr(sample, field) is None:
+                null_counts[field] += 1
+
+    return dict(null_counts)
