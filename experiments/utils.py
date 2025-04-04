@@ -30,21 +30,15 @@ def get_ground_truth():
             fieldnames.append(header)
         reader.fieldnames = fieldnames
         for row in reader:
-            row = {key: (value if value != "NULL" else None) for key, value in row.items()}
-            row_id = row.pop("codigo")  # remove 'ID' and use it as a key
+            row = {
+                key: (value if value != "NULL" else None) for key, value in row.items()
+            }
+            row_id = row.pop("codigo")
             ground_truth[row_id] = row
     return ground_truth
 
 
 def calculate_null_of_consistent_values(sample, ground_truth):
-    dom_values = [
-        "titulo",
-        "data",
-        "cod_registro_info_sfinge",
-        "municipio",
-        "entidade",
-        "categoria",
-    ]
     cod_registro_info_sfinge_null_amount = 0
     cod_municipio_null_amount = 0
     for codigo in sample:
