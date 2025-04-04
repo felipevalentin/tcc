@@ -1,30 +1,31 @@
+import asyncio
 import ollama
 import models
 import utils
 import json
 
-client = ollama.Client(host="https://ollama-dev.ceos.ufsc.br/")
-response = client.list()
-for model in response.models:
-    print(model.model, model.details.parameter_size)
 
-
-def extract(context):
-    return client.chat(
-        model="qwen2.5:0.5b",
-        messages=[
+async def extract(client, context):
+    PROMPT = {
+        "model": "qwen2.5:0.5b",
+        "messages": [
             {"role": "system", "content": "Extraia os atributos do documento"},
             {"role": "user", "content": context},
         ],
-        format=models.Atributos.model_json_schema(),
-    )
+        "format": models.Atributos.model_json_schema(),
+    }
+
+    return client.chat(**PROMPT)
 
 
-sample = utils.get_sample()
-ground_truth = utils.get_ground_truth()
-for codigo in sample:
-    response = extract(sample[codigo]["texto"])
-    content = response["message"]["content"]
-    content_json = json.loads(content)
-    print(models.Atributos.model_validate_json(content))
-    print(content_json)
+async def process_documents():
+    """Process multiple documents asynchronously."""
+    sample = utils.read_json_to_dict_of_samples()
+
+    async with ollama.AsyncClient(host="https://ollama-dev.ceos.ufsc.br/") as client:
+        tasks = [extract(client, sample[codigo]["texto"]) for codigo in sample]
+        results = await asyncio.gather(*tasks)
+
+    for result in results:
+        if result:
+            print(result)

@@ -31,14 +31,14 @@ class GroundTruthExtractedFields(BaseModel):
     nr_modalidade: str
     objeto: str
     justificativa: str
-    data_abertura: str
-    informacoes: str
-    signatario: str
-    cargo_do_signatario: str
+    data_abertura: Optional[str]
+    informacoes: Optional[str]
+    signatario: Optional[str]
+    cargo_do_signatario: Optional[str]
 
 
 class GroundTruth(BaseModel):
-    codigo: int = Field(alias="Código")
+    codigo: str = Field(alias="Código")
     titulo: str = Field(alias="Título")
     data_hora_dom: str = Field(alias="DataHoraDOM")
     cod_registro_info_sfinge: Optional[str] = Field(alias="cod_registro_info_sfinge")
