@@ -52,4 +52,4 @@ class GroundTruth(BaseModel):
     data_abertura: Optional[str] = Field(alias="Data Abertura")
     informacoes: Optional[str] = Field(alias="Informacoes")
     signatario: Optional[str] = Field(alias="Signatário")
-    cargo_signatario: Optional[str] = Field(alias="Cargo do Signatário")
+    cargo_do_signatario: Optional[str] = Field(alias="Cargo do Signatário")

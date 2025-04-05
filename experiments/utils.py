@@ -41,6 +41,35 @@ def calculate_null_values(samples: Dict[str, Union[Sample, GroundTruth]]) -> Cou
 
 def list_models(client):
     # client = ollama.Client(host="https://ollama-dev.ceos.ufsc.br/")
+    # gemma3:12b 12.2B
+    # gemma3:4b 4.3B
+    # gemma3:1b 999.89M
+    # gemma3:27b-it-fp16 27.4B
+    # qwen2.5:72b-instruct 72.7B
+    # deepseek-r1:32b-qwen-distill-q4_K_M 32.8B
+    # deepseek-r1:70b 70.6B
+    # qwen2.5:0.5b 494.03M
+    # qwen2.5:1.5b 1.5B
+    # llama3.3:70b 70.6B
+    # llama3.3:latest 70.6B
+    # llama3.2-vision:latest 9.8B
+    # llama3.2:longe-ctx 3.2B
+    # qwen2.5:latest 7.6B
+    # nomic-embed-text:latest 137M
+    # qwen2.5-coder:32b 32.8B
+    # llama3.2:1b 1.2B
+    # mistral-nemo:12b-instruct-2407-fp16 12.2B
+    # nemotron:70b-instruct-q8_0 70.6B
+    # llama3.2:3b 3.2B
+    # llama3.2:latest 3.2B
+    # mistral-large:123b 122.6B
+    # qwen2.5:72b 72.7B
+    # llama3.1:70b 70.6B
+    # qwen2.5:32b-instruct 32.8B
+    # qwen2.5:72b-instruct-q4_0 72.7B
+    # llama2-uncensored:latest 7B
+    # qwen2.5:7b 7.6B
+    # qwen2.5:3b 3.1B
     response = client.list()
     for model in response.models:
         print(model.model, model.details.parameter_size)
