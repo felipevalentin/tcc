@@ -1,3 +1,4 @@
+import html
 from pathlib import Path
 import json
 import csv
@@ -10,7 +11,10 @@ def read_json_to_dict_of_samples(
     file_path: Path = Path("../resources/sample.json"),
 ) -> Dict[str, Sample]:
     data = json.loads(file_path.read_text(encoding="utf-8"))
-    return {item["codigo"]: Sample(**item) for item in data}
+    return {
+        item["codigo"]: Sample(**{**item, "texto": html.unescape(item["texto"])})
+        for item in data
+    }
 
 
 def read_csv_to_dict_of_ground_truth(

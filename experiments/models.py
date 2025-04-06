@@ -1,6 +1,9 @@
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field
+
+from municipios import Municipio
 
 
 class Sample(BaseModel):
@@ -24,14 +27,36 @@ class GroundTruthDOMFields(BaseModel):
     entidade: str
     categoria_dom: str
 
+class Modalidade(str, Enum):
+    CONCORRENCIA = "Concorrência"
+    CONCURSO = "Concurso"
+    CONVITE = "Convite"
+    CREDENCIAMENTO = "Credenciamento"
+    DIALOGO_COMPETITIVO = "Diálogo Competitivo"
+    DISPENSA_DE_LICITACAO = "Dispensa de Licitação"
+    INEXIGIBILIDADE = "Inexigibilidade"
+    LEILAO = "Leilão"
+    REGIME_DIFERENCIADO_DE_CONTRATACOES = "Regime Diferenciado de Contratações"
+    PREGAO = "Pregão"
+    TOMADA_DE_PRECOS = "Tomada de Preços"
+
+
+class Formato(str, Enum):
+    ELETRONICO = "Eletrônico"
+    PRESENCIAL = "Presencial"
 
 class GroundTruthExtractedFields(BaseModel):
-    municipio: str
-    modalidade: str
+    municipio: Municipio
+    modalidade: Modalidade
+    formato: Optional[Formato]
     nr_modalidade: str
     objeto: str
     justificativa: str
     data_abertura: Optional[str]
+    # 2025-04-05T19:29
+    # 2025-04-05T19:29:00
+    # 2025-04-05T19:29:00+00:00
+    # ano 2025 mes 04 dia 05 hora 19 minuto 29
     informacoes: Optional[str]
     signatario: Optional[str]
     cargo_do_signatario: Optional[str]

@@ -1,7 +1,11 @@
 import json
 import pathlib
 import time
+
+import Levenshtein
 import ollama
+import unidecode
+
 import utils
 import models
 import hashlib
@@ -59,7 +63,21 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
         ground_truth_dump = ground_truth[codigo].model_dump()
         print(f"\nEvaluating document {codigo}...")
         for field in models.GroundTruthExtractedFields.model_fields.keys():
-            if extraction_dump[field] == ground_truth_dump[field]:
+            nomralized_extracted = extraction_dump[field]
+            normalized_ground_truth = ground_truth_dump[field]
+            if extraction_dump[field] and ground_truth_dump[field]:
+                nomralized_extracted = unidecode.unidecode(extraction_dump[field]).replace(" ", "").lower()
+                normalized_ground_truth = unidecode.unidecode(ground_truth_dump[field]).replace(" ", "").lower()
+
+            if field in ["objeto", "justificativa", "informacoes", "signatario", "cargo_do_signatario"]:
+                distance = Levenshtein.ratio(nomralized_extracted, normalized_ground_truth)
+                print(f"Levenshtein distance for field '{field}': {distance}")
+                if distance > 0.8:
+                    corrects[field] += 1
+                    print(f"Field '{field}' is correct.")
+                else:
+                    print(f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field]}, Got: {extraction_dump[field]}")
+            elif nomralized_extracted == normalized_ground_truth:
                 corrects[field] += 1
                 print(f"Field '{field}' is correct.")
             else:
@@ -90,13 +108,12 @@ def main():
             if result is not None
         }
         with open(f"../resources/{prompt_hash}.json", "w+") as f:
-            json.dump(serializable_results, f, indent=4, default=str)
+            json.dump(serializable_results, f, indent=4, ensure_ascii=False)
     else:
         print("Prompt hash file found. Loading existing results...")
         with open(f"../resources/{prompt_hash}.json", "r", encoding="utf-8") as f:
             data = json.load(f)
             extraction_results = {codigo: models.GroundTruthExtractedFields(**fields) for codigo, fields in data.items()}
-
     evaluate_extraction_per_column(extraction_results, utils.read_csv_to_dict_of_ground_truth())
 
 if __name__ == "__main__":
