@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Municipio(str, Enum):
     ABDON_BATISTA = "Abdon Batista"
     ABELARDO_LUZ = "Abelardo Luz"

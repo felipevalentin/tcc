@@ -1,7 +1,8 @@
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from municipios import Municipio
 
@@ -27,6 +28,7 @@ class GroundTruthDOMFields(BaseModel):
     entidade: str
     categoria_dom: str
 
+
 class Modalidade(str, Enum):
     CONCORRENCIA = "Concorrência"
     CONCURSO = "Concurso"
@@ -45,21 +47,31 @@ class Formato(str, Enum):
     ELETRONICO = "Eletrônico"
     PRESENCIAL = "Presencial"
 
+
 class GroundTruthExtractedFields(BaseModel):
-    municipio: Municipio
-    modalidade: Modalidade
-    formato: Optional[Formato]
-    nr_modalidade: str
-    objeto: str
-    justificativa: str
-    data_abertura: Optional[str]
+    municipio: Municipio = Field(description="Nome do município onde a licitação foi realizada")
+    modalidade: Modalidade = Field(description="Modalidade da Licitação")
+    formato: Optional[Formato] = Field(description="O Formato da Modalidade")
+    nr_modalidade: str = Field(description="Número da Modalidade, exemplo 123/2024")
+    objeto: str = Field(description="Descrição do objeto da licitação")
+    justificativa: Optional[str] = Field(description="Justificativa apresentada para a realização da licitação")
+    data_abertura: Optional[datetime] = Field(description="Data de abertura da licitação, no formato ISO 8601")
+    informacoes: Optional[str] = Field(description="Informações adicionais relevantes")
+    signatario: str = Field(description="Nome do signatário do documento")
+    cargo_do_signatario: str = Field(description="Cargo do signatário")
+
+    model_config = ConfigDict(strict=True)
+
+    # @field_validator("data_abertura")
+    # def validate_data_abertura(cls, value: Optional[datetime]) -> Optional[datetime]:
+    #     if value is not None:
+    #         if not (2000 <= value.year <= 2040):
+    #             raise ValueError("data_abertura year must be between 2000 and 2040")
+    #     return value
     # 2025-04-05T19:29
     # 2025-04-05T19:29:00
     # 2025-04-05T19:29:00+00:00
     # ano 2025 mes 04 dia 05 hora 19 minuto 29
-    informacoes: Optional[str]
-    signatario: Optional[str]
-    cargo_do_signatario: Optional[str]
 
 
 class GroundTruth(BaseModel):

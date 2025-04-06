@@ -12,13 +12,17 @@ import hashlib
 from pydantic import ValidationError
 
 OLLAMA_HOST = "https://ollama-dev.ceos.ufsc.br/"
-PROMPT = "Extraia os atributos do documento"
+PROMPT = "Você é um assistente especializado em extração de informações de licitações no Brasil. Sua tarefa é ler um texto de licitação e extrair as informações, retornando um JSON estruturado"
 MODEL_NAME = "llama3.3:70b"
 MAX_RETRIES = 3
 
+
 def extract(client, task_id, codigo, context):
+    global PROMPT
     for attempt in range(1, MAX_RETRIES + 1):
-        print(f"Task {task_id}: Starting extraction for document {codigo} (Attempt {attempt})")
+        print(
+            f"Task {task_id}: Starting extraction for document {codigo} (Attempt {attempt})"
+        )
         try:
             start_time = time.perf_counter()
             response = client.chat(
@@ -30,18 +34,29 @@ def extract(client, task_id, codigo, context):
                 format=models.GroundTruthExtractedFields.model_json_schema(),
             )
             content = response["message"]["content"]
-            extracted_data = models.GroundTruthExtractedFields.model_validate_json(content)
-            print(f"Task {task_id}: Finished extraction for document {codigo} in {time.perf_counter() - start_time:.2f} seconds")
+            extracted_data = models.GroundTruthExtractedFields.model_validate_json(
+                content, strict=True
+            )
+            print(
+                f"Task {task_id}: Finished extraction for document {codigo} in {time.perf_counter() - start_time:.2f} seconds"
+            )
             return extracted_data
         except ValidationError as e:
             print(f"Task {task_id}: ValidationError on attempt {attempt}. Retrying...")
+            for error in e.errors():
+                msg = error["ctx"]["error"]
+                PROMPT += f"\n {msg}\n"
             if attempt == MAX_RETRIES:
-                print(f"Task {task_id}: Validation failed after {MAX_RETRIES} attempts. Skipping.")
+                print(
+                    f"Task {task_id}: Validation failed after {MAX_RETRIES} attempts. Skipping."
+                )
                 return None
 
         except Exception as e:
             print(f"Task {task_id}: Unexpected error processing document {codigo}: {e}")
-            return None
+            if attempt == MAX_RETRIES:
+                return None
+
 
 def process_documents(client):
     sample = utils.read_json_to_dict_of_samples()
@@ -51,13 +66,16 @@ def process_documents(client):
     for task_id, codigo in enumerate(sample, start=1):
         result = extract(client, task_id, codigo, sample[codigo].texto)
         results[codigo] = result
+        break
 
     print("All extractions completed.")
     return results
 
 
 def evaluate_extraction_per_column(extraction_results, ground_truth):
-    corrects = {field: 0 for field in models.GroundTruthExtractedFields.model_fields.keys()}
+    corrects = {
+        field: 0 for field in models.GroundTruthExtractedFields.model_fields.keys()
+    }
     for codigo in ground_truth:
         extraction_dump = extraction_results[codigo].model_dump()
         ground_truth_dump = ground_truth[codigo].model_dump()
@@ -66,22 +84,40 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
             nomralized_extracted = extraction_dump[field]
             normalized_ground_truth = ground_truth_dump[field]
             if extraction_dump[field] and ground_truth_dump[field]:
-                nomralized_extracted = unidecode.unidecode(extraction_dump[field]).replace(" ", "").lower()
-                normalized_ground_truth = unidecode.unidecode(ground_truth_dump[field]).replace(" ", "").lower()
+                nomralized_extracted = (
+                    unidecode.unidecode(extraction_dump[field]).replace(" ", "").lower()
+                )
+                normalized_ground_truth = (
+                    unidecode.unidecode(ground_truth_dump[field])
+                    .replace(" ", "")
+                    .lower()
+                )
 
-            if field in ["objeto", "justificativa", "informacoes", "signatario", "cargo_do_signatario"]:
-                distance = Levenshtein.ratio(nomralized_extracted, normalized_ground_truth)
+            if field in [
+                "objeto",
+                "justificativa",
+                "informacoes",
+                "signatario",
+                "cargo_do_signatario",
+            ]:
+                distance = Levenshtein.ratio(
+                    nomralized_extracted, normalized_ground_truth
+                )
                 print(f"Levenshtein distance for field '{field}': {distance}")
                 if distance > 0.8:
                     corrects[field] += 1
                     print(f"Field '{field}' is correct.")
                 else:
-                    print(f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field]}, Got: {extraction_dump[field]}")
+                    print(
+                        f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field]}, Got: {extraction_dump[field]}"
+                    )
             elif nomralized_extracted == normalized_ground_truth:
                 corrects[field] += 1
                 print(f"Field '{field}' is correct.")
             else:
-                print(f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field]}, Got: {extraction_dump[field]}")
+                print(
+                    f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field]}, Got: {extraction_dump[field]}"
+                )
 
     total = len(ground_truth)
     metrics = {}
@@ -94,16 +130,19 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
     for field, metric in metrics.items():
         print(f"{field}: {metric['accuracy']:.2%}", end=", ")
 
+
 def main():
     print("Starting document processing...")
-    prompt_hash = hashlib.md5(f"{PROMPT} + {MODEL_NAME}".encode()).hexdigest()
+    prompt_hash = hashlib.md5(
+        f"{PROMPT} + {MODEL_NAME} + {models.GroundTruthExtractedFields.model_json_schema()}".encode()
+    ).hexdigest()
     if not pathlib.Path(f"../resources/{prompt_hash}.json").exists():
         print("Prompt hash file not found. Processing documents...")
         client = ollama.Client(host=OLLAMA_HOST)
         extraction_results = process_documents(client)
         print("Processing completed.")
         serializable_results = {
-            codigo: result.model_dump()
+            codigo: result.model_dump(mode="json")
             for codigo, result in extraction_results.items()
             if result is not None
         }
@@ -113,8 +152,14 @@ def main():
         print("Prompt hash file found. Loading existing results...")
         with open(f"../resources/{prompt_hash}.json", "r", encoding="utf-8") as f:
             data = json.load(f)
-            extraction_results = {codigo: models.GroundTruthExtractedFields(**fields) for codigo, fields in data.items()}
-    evaluate_extraction_per_column(extraction_results, utils.read_csv_to_dict_of_ground_truth())
+            extraction_results = {
+                codigo: models.GroundTruthExtractedFields(**fields)
+                for codigo, fields in data.items()
+            }
+    # evaluate_extraction_per_column(
+    #     extraction_results, utils.read_csv_to_dict_of_ground_truth()
+    # )
+
 
 if __name__ == "__main__":
     start_time = time.perf_counter()
