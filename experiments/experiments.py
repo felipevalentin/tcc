@@ -32,6 +32,9 @@ def extract(client, task_id, codigo, context):
                     {"role": "user", "content": context},
                 ],
                 format=models.GroundTruthExtractedFields.model_json_schema(),
+                options={
+                    "temperature": 0,
+                }
             )
             content = response["message"]["content"]
             extracted_data = models.GroundTruthExtractedFields.model_validate_json(
@@ -66,7 +69,6 @@ def process_documents(client):
     for task_id, codigo in enumerate(sample, start=1):
         result = extract(client, task_id, codigo, sample[codigo].texto)
         results[codigo] = result
-        break
 
     print("All extractions completed.")
     return results
@@ -83,7 +85,7 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
         for field in models.GroundTruthExtractedFields.model_fields.keys():
             nomralized_extracted = extraction_dump[field]
             normalized_ground_truth = ground_truth_dump[field]
-            if extraction_dump[field] and ground_truth_dump[field]:
+            if field != "data_abertura" and extraction_dump[field] and ground_truth_dump[field]:
                 nomralized_extracted = (
                     unidecode.unidecode(extraction_dump[field]).replace(" ", "").lower()
                 )
@@ -147,18 +149,19 @@ def main():
             if result is not None
         }
         with open(f"../resources/{prompt_hash}.json", "w+") as f:
+            # save prompt and model schema
             json.dump(serializable_results, f, indent=4, ensure_ascii=False)
     else:
         print("Prompt hash file found. Loading existing results...")
         with open(f"../resources/{prompt_hash}.json", "r", encoding="utf-8") as f:
             data = json.load(f)
             extraction_results = {
-                codigo: models.GroundTruthExtractedFields(**fields)
+                codigo: models.GroundTruthExtractedFields.model_validate(fields)
                 for codigo, fields in data.items()
             }
-    # evaluate_extraction_per_column(
-    #     extraction_results, utils.read_csv_to_dict_of_ground_truth()
-    # )
+    evaluate_extraction_per_column(
+        extraction_results, utils.read_csv_to_dict_of_ground_truth()
+    )
 
 
 if __name__ == "__main__":

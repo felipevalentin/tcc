@@ -1,5 +1,5 @@
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Optional
 
 from pydantic import BaseModel, Field, ConfigDict
@@ -29,7 +29,7 @@ class GroundTruthDOMFields(BaseModel):
     categoria_dom: str
 
 
-class Modalidade(str, Enum):
+class Modalidade(StrEnum):
     CONCORRENCIA = "Concorrência"
     CONCURSO = "Concurso"
     CONVITE = "Convite"
@@ -43,7 +43,7 @@ class Modalidade(str, Enum):
     TOMADA_DE_PRECOS = "Tomada de Preços"
 
 
-class Formato(str, Enum):
+class Formato(StrEnum):
     ELETRONICO = "Eletrônico"
     PRESENCIAL = "Presencial"
 
@@ -51,16 +51,14 @@ class Formato(str, Enum):
 class GroundTruthExtractedFields(BaseModel):
     municipio: Municipio = Field(description="Nome do município onde a licitação foi realizada")
     modalidade: Modalidade = Field(description="Modalidade da Licitação")
-    formato: Optional[Formato] = Field(description="O Formato da Modalidade")
+    formato: Optional[Formato] = Field(default=None, description="O Formato da Modalidade")
     nr_modalidade: str = Field(description="Número da Modalidade, exemplo 123/2024")
     objeto: str = Field(description="Descrição do objeto da licitação")
-    justificativa: Optional[str] = Field(description="Justificativa apresentada para a realização da licitação")
-    data_abertura: Optional[datetime] = Field(description="Data de abertura da licitação, no formato ISO 8601")
-    informacoes: Optional[str] = Field(description="Informações adicionais relevantes")
+    justificativa: Optional[str] = Field(default=None, description="Justificativa apresentada para a realização da licitação")
+    data_abertura: Optional[datetime] = Field(default=None, description="Data de abertura da licitação, no formato ISO 8601")
+    informacoes: Optional[str] = Field(default=None, description="Informações adicionais relevantes")
     signatario: str = Field(description="Nome do signatário do documento")
     cargo_do_signatario: str = Field(description="Cargo do signatário")
-
-    model_config = ConfigDict(strict=True)
 
     # @field_validator("data_abertura")
     # def validate_data_abertura(cls, value: Optional[datetime]) -> Optional[datetime]:
@@ -77,16 +75,19 @@ class GroundTruthExtractedFields(BaseModel):
 class GroundTruth(BaseModel):
     codigo: str = Field(alias="Código")
     titulo: str = Field(alias="Título")
+    nr_pro_licitatorio: str = Field(alias="NrProLicitatório")
     data_hora_dom: str = Field(alias="DataHoraDOM")
     cod_registro_info_sfinge: Optional[str] = Field(alias="cod_registro_info_sfinge")
     municipio: str = Field(alias="Município")
     entidade: str = Field(alias="Entidade")
     categoria_dom: str = Field(alias="CategoriaDOM")
     modalidade: str = Field(alias="Modalidade")
-    nr_modalidade: str = Field(alias="Nr.Modalidade")
-    objeto: Optional[str] = Field(alias="Objeto")
+    formato: Optional[str] = Field(alias="Formato")
+    nr_modalidade: str = Field(alias="NrModalidade")
+    objeto: str = Field(alias="Objeto")
     justificativa: Optional[str] = Field(alias="Justificativa")
     data_abertura: Optional[str] = Field(alias="Data Abertura")
+    data_abertura_normalizada: Optional[str] = Field(alias="Data Abertura Normalizada")
     informacoes: Optional[str] = Field(alias="Informacoes")
-    signatario: Optional[str] = Field(alias="Signatário")
-    cargo_do_signatario: Optional[str] = Field(alias="Cargo do Signatário")
+    signatario: str = Field(alias="Signatário")
+    cargo_do_signatario: str = Field(alias="Cargo do Signatário")

@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class Municipio(str, Enum):
+class Municipio(StrEnum):
     ABDON_BATISTA = "Abdon Batista"
     ABELARDO_LUZ = "Abelardo Luz"
     AGROLANDIA = "Agrolândia"
