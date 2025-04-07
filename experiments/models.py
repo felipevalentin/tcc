@@ -55,7 +55,7 @@ class GroundTruthExtractedFields(BaseModel):
     nr_modalidade: str = Field(description="Número da Modalidade, exemplo 123/2024")
     objeto: str = Field(description="Descrição do objeto da licitação")
     justificativa: Optional[str] = Field(default=None, description="Justificativa apresentada para a realização da licitação")
-    data_abertura: Optional[datetime] = Field(default=None, description="Data de abertura da licitação, no formato ISO 8601")
+    data_abertura: Optional[datetime] = Field(default=None, description="Data de abertura da licitação, exmeplo 2025-04-05T19:29")
     informacoes: Optional[str] = Field(default=None, description="Informações adicionais relevantes")
     signatario: str = Field(description="Nome do signatário do documento")
     cargo_do_signatario: str = Field(description="Cargo do signatário")
