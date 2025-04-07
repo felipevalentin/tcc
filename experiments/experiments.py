@@ -211,13 +211,8 @@ def main():
 def clean_html_text(input_text):
     soup = BeautifulSoup(input_text, "html.parser")
     text_without_html = soup.get_text()
-
-    # Decodificar entidades HTML para UTF-8
     text_utf8 = html.unescape(text_without_html)
-
-    # Limitar quebras de linha consecutivas a no máximo duas
     text_limited_breaks = re.sub(r'\n{3,}', '\n\n', text_utf8)
-
     return text_limited_breaks.strip()
 
 if __name__ == "__main__":
