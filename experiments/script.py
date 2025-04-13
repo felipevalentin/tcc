@@ -3,10 +3,24 @@ from openpyxl import Workbook
 
 # Define the header columns for the Excel file
 headers = [
-    "Código", "Título", "NrProLicitatório", "DataHoraDOM", "cod_registro_info_sfinge",
-    "Município", "Entidade", "CategoriaDOM", "Modalidade", "Formato", "NrModalidade",
-    "Objeto", "Justificativa", "Data Abertura", "Data Abertura Normalizada",
-    "Informacoes", "Signatário", "Cargo do Signatário"
+    "Código",
+    "Título",
+    "NrProLicitatório",
+    "DataHoraDOM",
+    "cod_registro_info_sfinge",
+    "Município",
+    "Entidade",
+    "CategoriaDOM",
+    "Modalidade",
+    "Formato",
+    "NrModalidade",
+    "Objeto",
+    "Justificativa",
+    "Data Abertura",
+    "Data Abertura Normalizada",
+    "Informacoes",
+    "Signatário",
+    "Cargo do Signatário",
 ]
 
 # Create a new workbook and select the active worksheet
@@ -18,20 +32,24 @@ ws.title = "Dados"
 ws.append(headers)
 
 # Load the JSON data from a file named 'data.json'
-with open("/Users/felipe.valentin/Desktop/personal/tcc/resources/sample_150.json", "r", encoding="utf-8") as f:
+with open(
+    "/Users/felipe.valentin/Desktop/personal/tcc/resources/sample_150.json",
+    "r",
+    encoding="utf-8",
+) as f:
     data = json.load(f)
 
 # Loop through each JSON item and append a row to the Excel sheet
 for item in data:
     row = [
-        item.get("codigo", ""),           # Código
-        item.get("titulo", ""),           # Título
-        "",                               # NrProLicitatório (empty)
-        item.get("data", ""),             # DataHoraDOM
+        item.get("codigo", ""),  # Código
+        item.get("titulo", ""),  # Título
+        "",  # NrProLicitatório (empty)
+        item.get("data", ""),  # DataHoraDOM
         item.get("cod_registro_info_sfinge", ""),  # cod_registro_info_sfinge
-        item.get("municipio", ""),        # Município
-        item.get("entidade", ""),         # Entidade
-        item.get("categoria", ""),        # CategoriaDOM
+        item.get("municipio", ""),  # Município
+        item.get("entidade", ""),  # Entidade
+        item.get("categoria", ""),  # CategoriaDOM
         "",  # Modalidade
         "",  # Formato
         "",  # NrModalidade
@@ -41,7 +59,7 @@ for item in data:
         "",  # Data Abertura Normalizada
         "",  # Informacoes
         "",  # Signatário
-        ""   # Cargo do Signatário
+        "",  # Cargo do Signatário
     ]
     ws.append(row)
 
