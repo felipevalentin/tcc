@@ -8,7 +8,7 @@ from models import Sample, GroundTruth
 
 
 def read_json_to_dict_of_samples(
-    file_path: Path = Path("../resources/sample.json"),
+    file_path: Path = Path("../resources/sample_100.json"),
 ) -> Dict[str, Sample]:
     data = json.loads(file_path.read_text(encoding="utf-8"))
     return {
@@ -18,7 +18,7 @@ def read_json_to_dict_of_samples(
 
 
 def read_csv_to_dict_of_ground_truth(
-    file_path: Path = Path("../resources/ground_truth.csv"),
+    file_path: Path = Path("../resources/ground_truth_100.csv"),
 ) -> Dict[str, GroundTruth]:
     ground_truths = {}
     with file_path.open(mode="r", encoding="utf-8") as file:

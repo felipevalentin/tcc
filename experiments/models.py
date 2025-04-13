@@ -48,17 +48,35 @@ class Formato(StrEnum):
     PRESENCIAL = "Presencial"
 
 
+class TipoDocumento(StrEnum):
+    APOSTILAMENTO = "Apostilamento"
+    ATA = "Ata"
+    AVISO_DE_LICITACAO = "Aviso de Licitação"
+    CONTRATO = "Contrato"
+    EDITAL = "Edital"
+    ERRATA = "Errata"
+    JULGAMENTO = "Julgamento"
+    LICITACAO = "Licitação"
+    RATIFICACAO = "Ratificacao"
+    RESULTADO = "Resultado"
+    SUSPENSAO = "Suspensão"
+    TERMO_ADITIVO = "Termo Aditivo"
+    TERMO_DE_ADJUCACAO = "Termo de Adjucação"
+    TERMO_DE_HOMOLOGACAO = "Termo de Homologação"
+
 class GroundTruthExtractedFields(BaseModel):
+    tipo_documento: TipoDocumento
+    nr_processo_licitatorio: str
     municipio: Municipio = Field(description="Nome do município onde a licitação foi realizada")
     modalidade: Modalidade = Field(description="Modalidade da Licitação")
-    formato: Optional[Formato] = Field(default=None, description="O Formato da Modalidade")
+    formato: Optional[Formato] = Field(default=None, description="O Formato da Modalidade exemplo Pregão Eletrônico")
     nr_modalidade: str = Field(description="Número da Modalidade, exemplo 123/2024")
     objeto: str = Field(description="Descrição do objeto da licitação")
-    justificativa: Optional[str] = Field(default=None, description="Justificativa apresentada para a realização da licitação")
-    data_abertura: Optional[datetime] = Field(default=None, description="Data de abertura da licitação, exmeplo 2025-04-05T19:29")
+    data_abertura: Optional[datetime] = Field(default=None,
+                                              description="Data de abertura da licitação, exmeplo 2025-04-05T19:29")
     informacoes: Optional[str] = Field(default=None, description="Informações adicionais relevantes")
-    signatario: str = Field(description="Nome do signatário do documento")
-    cargo_do_signatario: str = Field(description="Cargo do signatário")
+    signatario: Optional[str] = Field(description="Nome do signatário do documento")
+    cargo_do_signatario: Optional[str] = Field(description="Cargo do signatário")
 
     # @field_validator("data_abertura")
     # def validate_data_abertura(cls, value: Optional[datetime]) -> Optional[datetime]:
@@ -75,7 +93,8 @@ class GroundTruthExtractedFields(BaseModel):
 class GroundTruth(BaseModel):
     codigo: str = Field(alias="Código")
     titulo: str = Field(alias="Título")
-    nr_pro_licitatorio: str = Field(alias="NrProLicitatório")
+    tipo_documento: str = Field(alias="Tipo de Documento")
+    nr_processo_licitatorio: str = Field(alias="NrProLicitatório")
     data_hora_dom: str = Field(alias="DataHoraDOM")
     cod_registro_info_sfinge: Optional[str] = Field(alias="cod_registro_info_sfinge")
     municipio: str = Field(alias="Município")
@@ -85,9 +104,9 @@ class GroundTruth(BaseModel):
     formato: Optional[str] = Field(alias="Formato")
     nr_modalidade: str = Field(alias="NrModalidade")
     objeto: str = Field(alias="Objeto")
-    justificativa: Optional[str] = Field(alias="Justificativa")
     data_abertura: Optional[str] = Field(alias="Data Abertura")
     data_abertura_normalizada: Optional[str] = Field(alias="Data Abertura Normalizada")
     informacoes: Optional[str] = Field(alias="Informacoes")
-    signatario: str = Field(alias="Signatário")
-    cargo_do_signatario: str = Field(alias="Cargo do Signatário")
+    signatario: Optional[str] = Field(alias="Signatário")
+    cargo_do_signatario: Optional[str] = Field(alias="Cargo do Signatário")
+

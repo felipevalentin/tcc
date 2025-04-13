@@ -15,15 +15,16 @@ import hashlib
 from pydantic import ValidationError
 
 OLLAMA_HOST = "https://ollama-dev.ceos.ufsc.br/"
-PROMPT = ("""Você é um assistente especializado em extração de informações de licitações de aquisição no Brasil. Sua tarefa é ler um texto de licitação e extrair as seguintes informações, retornando um JSON estruturado conforme o modelo abaixo:
+PROMPT = """
+Você é um assistente especializado em extração de informações de licitações de aquisição no Brasil. Sua tarefa é ler um texto de licitação e extrair as seguintes informações, retornando um JSON estruturado conforme o modelo abaixo:
 
 - **municipio**: Nome do município onde a licitação foi realizada.
-- **modalidade**: Modalidade da licitação
+- **nr_processo_licitatorio**: Se tiver, caso não use nr_modalidade
+- **modalidade**: Modalidade da licitação (por exemplo, "Pregão Presencial", "Concorrência", etc.).
 - **formato**: (Opcional) Formato específico da licitação, se houver.
-- **nr_modalidade**: Número da Modalidade
+- **nr_modalidade**: Número da Modalidade, no formato "123/2024" (exemplos: "123/2024", "01/2012", "22/2009").
 - **objeto**: Descrição do objeto da licitação.
-- **justificativa**: (Opcional) Justificativa apresentada para a realização da licitação.
-- **data_abertura**: (Opcional) Data de abertura da licitação
+- **data_abertura**: (Opcional) Data de abertura da licitação, no formato ISO 8601 (por exemplo, "2024-05-15T00:00).
 - **informacoes**: (Opcional) Informações adicionais relevantes.
 - **signatario**: Nome do signatário do documento.
 - **cargo_do_signatario**: Cargo do signatário.
@@ -39,18 +40,19 @@ PROMPT = ("""Você é um assistente especializado em extração de informações
 
 ```json
 {
+  "tipo_documento": "Ata"
+  "nr_processo_licitatorio": "150/2024"
   "municipio": "São Paulo",
   "modalidade": "Pregão Presencial",
-  "formato": "Eletrônico",
+  "formato": "Eletronico",
   "nr_modalidade": "123/2024",
   "objeto": "Aquisição de equipamentos",
-  "justificativa": null,
-  "data_abertura": "2024-05-15T00:00:00",
-  "informacoes": "Informações adicionais se houver",
+  "data_abertura": "2024-05-15T00:00",
+  "informacoes": "telefone: 0xx49-36452000, no Depto de Compras, das 07:30h às 11:30h e das 13:00h às 17:00h e no site https://guaraciaba.atende.net,",
   "signatario": "João Silva",
   "cargo_do_signatario": "Diretor de Licitações"
 }
-""")
+"""
 MODEL_NAME = "llama3.3:70b"
 MAX_RETRIES = 3
 
@@ -69,16 +71,15 @@ def extract(client, task_id, codigo, context):
                     {"role": "system", "content": PROMPT},
                     {"role": "user", "content": context},
                 ],
-                # format=models.GroundTruthExtractedFields.model_json_schema(),
+                format=models.GroundTruthExtractedFields.model_json_schema(),
                 options={
                     "temperature": 0,
                 }
             )
             content = response["message"]["content"]
-            extracted_data = content
-            # extracted_data = models.GroundTruthExtractedFields.model_validate_json(
-            #     content, strict=True
-            # )
+            extracted_data = models.GroundTruthExtractedFields.model_validate_json(
+                content, strict=True
+            )
             print(
                 f"Task {task_id}: Finished extraction for document {codigo} in {time.perf_counter() - start_time:.2f} seconds"
             )
@@ -117,9 +118,14 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
     corrects = {
         field: 0 for field in models.GroundTruthExtractedFields.model_fields.keys()
     }
+    # compare with data_abertura normalizada
     for codigo in ground_truth:
-        extraction_dump = extraction_results[codigo].model_dump()
-        ground_truth_dump = ground_truth[codigo].model_dump()
+        try:
+            extraction_dump = extraction_results[codigo].model_dump()
+            ground_truth_dump = ground_truth[codigo].model_dump()
+        except KeyError as e:
+            print(f"Task {codigo}: KeyError: {e}")
+            return
         print(f"\nEvaluating document {codigo}...")
         for field in models.GroundTruthExtractedFields.model_fields.keys():
             nomralized_extracted = extraction_dump[field]
@@ -150,12 +156,12 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
                     nomralized_extracted, normalized_ground_truth
                 )
                 print(f"Levenshtein distance for field '{field}': {distance}")
-                if distance > 0.9:
+                if distance > 0.8:
                     corrects[field] += 1
                     print(f"Field '{field}' is correct.")
                 else:
                     print(
-                        f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field]}, Got: {extraction_dump[field]}"
+                        f"Field '{field}' is incorrect - Expected: <{ground_truth_dump[field]}> Got: <{extraction_dump[field]}>"
                     )
             elif nomralized_extracted == normalized_ground_truth:
                 corrects[field] += 1
@@ -203,9 +209,9 @@ def main():
                 codigo: models.GroundTruthExtractedFields.model_validate(fields)
                 for codigo, fields in data.items()
             }
-    # evaluate_extraction_per_column(
-    #     extraction_results, utils.read_csv_to_dict_of_ground_truth()
-    # )
+    evaluate_extraction_per_column(
+        extraction_results, utils.read_csv_to_dict_of_ground_truth()
+    )
 
 
 def clean_html_text(input_text):
@@ -213,6 +219,7 @@ def clean_html_text(input_text):
     text_without_html = soup.get_text()
     text_utf8 = html.unescape(text_without_html)
     text_limited_breaks = re.sub(r'\n{3,}', '\n\n', text_utf8)
+
     return text_limited_breaks.strip()
 
 if __name__ == "__main__":
