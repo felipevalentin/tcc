@@ -16,12 +16,29 @@ import hashlib
 from pydantic import ValidationError
 
 OLLAMA_HOST = "https://ollama-dev.ceos.ufsc.br/"
-PROMPT = """Você é um assistente especializado na extração de informações de licitações de aquisição realizadas no Brasil. Sua tarefa é ler cuidadosamente um texto de licitação e identificar as informações necessárias para preenchimento dos campos descritos. A saída deve ser um JSON válido, seguindo rigorosamente o esquema especificado, sem incluir informações ou comentários adicionais."""
+PROMPT = """Você é um assistente especializado na extração de informações de licitações. 
+Extraia as seguintes informações de um documento de licitação:
+
+- Reasoning: Raciocínio ou justificativa, se presente.
+- Tipo de Documento: Conforme indicado no título do documento.
+- Número Processo Licitatório: No formato "número/ano" (ex.: 1234/2020).
+- Município: Nome do município de Santa Catarina onde ocorreu a licitação.
+- Modalidade: Modalidade da licitação.
+- Formato da Modalidade (opcional): Se informado.
+- Número da Modalidade: Também no formato "número/ano".
+- Objeto: Descrição completa do objeto da licitação, material ou serviço.
+- Data de Abertura (opcional): Data de abertura do processo.
+- Informações (opcional): Endereço do site onde o edital pode ser encontrado.
+- Signatário (opcional): Nome da pessoa que assinou o documento.
+- Cargo do Signatário (opcional): Cargo da pessoa que assinou o documento.
+
+Caso algum campo não esteja presente, indique-o como null.
+"""
 MODEL_NAME = "llama3.3:70b"
 MAX_RETRIES = 3
 
 
-def extract(client, task_id, codigo, context):
+def extract(client, task_id, codigo, context, prompt):
     global PROMPT
     for attempt in range(1, MAX_RETRIES + 1):
         print(
@@ -32,12 +49,13 @@ def extract(client, task_id, codigo, context):
             response = client.chat(
                 model=MODEL_NAME,
                 messages=[
-                    {"role": "system", "content": PROMPT},
+                    {"role": "system", "content": prompt},
                     {"role": "user", "content": context},
                 ],
                 format=models.GroundTruthExtractedFields.model_json_schema(),
                 options={
                     "temperature": 0,
+                    "seed": 42,
                 },
             )
             content = response["message"]["content"]
@@ -52,7 +70,7 @@ def extract(client, task_id, codigo, context):
             print(f"Task {task_id}: ValidationError on attempt {attempt}. Retrying...")
             for error in e.errors():
                 msg = error["ctx"]["error"]
-                PROMPT += f"\n {msg}\n"
+                prompt += f"\n {msg}\n"
             if attempt == MAX_RETRIES:
                 print(
                     f"Task {task_id}: Validation failed after {MAX_RETRIES} attempts. Skipping."
@@ -61,6 +79,7 @@ def extract(client, task_id, codigo, context):
 
         except Exception as e:
             print(f"Task {task_id}: Unexpected error processing document {codigo}: {e}")
+            prompt += f"\n answer faster in less than 1 minute\n"
             if attempt == MAX_RETRIES:
                 return None
 
@@ -76,6 +95,7 @@ def process_documents(client):
             task_id,
             codigo,
             clean_html_text(sample[codigo].titulo + "\n" + sample[codigo].texto),
+            PROMPT,
         )
         results[codigo] = result
 
@@ -93,15 +113,18 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
         try:
             extraction_dump = extraction_results[codigo].model_dump()
             ground_truth_dump = ground_truth[codigo].model_dump()
-        except KeyError as e:
+        except Exception as e:
             print(f"Task {codigo}: KeyError: {e}")
-            return
+            break
         print(f"\nEvaluating document {codigo}...")
         for field in models.GroundTruthExtractedFields.model_fields.keys():
+            if field == "reasoning":
+                continue
             nomralized_extracted = extraction_dump[field]
             normalized_ground_truth = ground_truth_dump[field]
-            if nomralized_extracted is None and normalized_ground_truth is None:
+            if normalized_ground_truth is None:
                 null[field] += 1
+            if nomralized_extracted is None and normalized_ground_truth is None:
                 corrects[field] += 1
                 # print(f"Field '{field}' is correct.")
                 continue
@@ -129,12 +152,9 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
                     == normalized_ground_truth.strftime("%Y-%m-%dT%H:%M")
                 ):
                     corrects[field] += 1
-                    print(
-                        f"correct extracted: {nomralized_extracted} ground truth: {normalized_ground_truth}"
-                    )
                 else:
                     print(
-                        f"wrong extracted: {nomralized_extracted} / {normalized_ground_truth}"
+                        f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field + "_normalizada"]}, Got: {extraction_dump[field]}"
                     )
             elif field in [
                 "objeto",
@@ -158,6 +178,8 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
                 corrects[field] += 1
                 # print(f"Field '{field}' is correct.")
             else:
+                if field == "tipo_documento":
+                    print(f"titulo: {ground_truth_dump["titulo"]}")
                 print(
                     f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field]}, Got: {extraction_dump[field]}"
                 )

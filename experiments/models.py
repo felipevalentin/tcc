@@ -50,7 +50,7 @@ class FormatoModalidade(StrEnum):
 
 class TipoDocumento(StrEnum):
     APOSTILAMENTO = "Apostilamento"
-    ATA = "Ata"
+    ATA_DE_ABERTURA = "Ata de Abertura"
     AVISO_DE_LICITACAO = "Aviso de Licitação"
     CONTRATO = "Contrato"
     EDITAL = "Edital"
@@ -58,40 +58,63 @@ class TipoDocumento(StrEnum):
     JULGAMENTO = "Julgamento"
     LICITACAO = "Licitação"
     RATIFICACAO = "Ratificacao"
-    RESULTADO = "Resultado"
+    # RESULTADO = "Resultado"
     SUSPENSAO = "Suspensão"
     TERMO_ADITIVO = "Termo Aditivo"
     TERMO_DE_ADJUCACAO = "Termo de Adjucação"
     TERMO_DE_HOMOLOGACAO = "Termo de Homologação"
 
-
 class GroundTruthExtractedFields(BaseModel):
-    tipo_documento: TipoDocumento
+    model_config = ConfigDict(title='Licitação')
+    reasoning: str = Field(title='Reasoning', description="Any reasoning need you can put here")
+    tipo_documento: TipoDocumento = Field(
+        title="Tipo de Documento",
+        description="Presente no título do documento",
+    )
     nr_processo_licitatorio: str = Field(
-        description="Número do processo, exemplo processo administrativo 14/2023. Apenas o 14/2023"
+        title="Número Processo Licitatório",
+        description="Processo administrativo 'numero/ano'",
+        pattern="^[0-9]+/[0-9]{4}$"
     )
     municipio: Municipio = Field(
-        description="Nome do município onde a licitação foi realizada"
+        title="Município",
+        description="Nome do município de Santa Catarina onde ocorreu a licitação",
     )
-    modalidade: Modalidade = Field(description="Modalidade da Licitação")
+    modalidade: Modalidade = Field(
+        title="Modalidade",
+        description="Modalidade da Licitação",
+    )
     formato_modalidade: Optional[FormatoModalidade] = Field(
-        default=None, description="O formato da modalidade"
+        title="Formato da Modalidade",
+        default=None, description="Modalidade formato_modalidade",
     )
     nr_modalidade: str = Field(
-        description="Número da Modalidade, exemplo pregrão eletronico 123/2024. Apenas o 123/2024"
+        title="Número da Modalidade",
+        description="Modalidade formato_modalidade 'numero/ano'",
+        pattern="^[0-9]+/[0-9]{4}$"
+
     )
     objeto: str = Field(
-        description="Descrição do objeto da licitação completa, incluindo todos detalhes"
+        title="Objeto",
+        description="Descrição do objeto da licitação completa, incluindo todos detalhes",
     )
     data_abertura: Optional[datetime] = Field(
+        title="Data de abertura",
         default=None,
-        description="Data de abertura da licitação, exemplo 2025-04-05T19:29",
+        description="Data de abertura",
     )
     informacoes: Optional[str] = Field(
-        default=None, description="Informações onde é possível encontrar o Edital"
+        title="Informações",
+        default=None, description="Site onde é possível encontrar o Edital",
     )
-    signatario: Optional[str] = Field(description="Nome do signatário do documento")
-    cargo_do_signatario: Optional[str] = Field(description="Cargo do signatário")
+    signatario: Optional[str] = Field(
+        title="Signatário",
+        default=None, description="Nome de quem assinou o documento",
+    )
+    cargo_do_signatario: Optional[str] = Field(
+        title="Cargo do Signtário",
+        default=None, description="Cargo de quem assinou o documento",
+    )
 
 
 class GroundTruth(BaseModel):
@@ -105,7 +128,7 @@ class GroundTruth(BaseModel):
     entidade: str = Field(alias="Entidade")
     categoria_dom: str = Field(alias="CategoriaDOM")
     modalidade: str = Field(alias="Modalidade")
-    localidade: Optional[str] = Field(alias="Formato")
+    formato_modalidade: Optional[str] = Field(alias="Formato")
     nr_modalidade: str = Field(alias="NrModalidade")
     objeto: str = Field(alias="Objeto")
     data_abertura: Optional[str] = Field(alias="Data Abertura")
