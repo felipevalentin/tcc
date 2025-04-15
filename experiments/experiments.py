@@ -32,7 +32,7 @@ Extraia as seguintes informações de um documento de licitação:
 - Signatário (opcional): Nome da pessoa que assinou o documento.
 - Cargo Do Signatário (opcional): Cargo da pessoa que assinou o documento. 
 
-Retorne como JSON.
+Retorne como JSON. null quando não informado.
 """
 # Signatário pode ser um campo complexo com nome e cargo e podemos ter uma lista de signatários
 # Modalidade pode ser um campo complexo, com Modalidade, Formato e Número
@@ -63,9 +63,7 @@ def extract(client, task_id, codigo, context, prompt):
                 },
             )
             content = response["message"]["content"]
-            extracted_data = models.Licitação.model_validate_json(
-                content, strict=True
-            )
+            extracted_data = models.Licitação.model_validate_json(content, strict=True)
             print(
                 f"Task {task_id}: Finished extraction for document {codigo} in {time.perf_counter() - start_time:.2f} seconds"
             )
@@ -98,20 +96,19 @@ def process_documents(client):
             client,
             task_id,
             codigo,
-            clean_html_text("Título: " + sample[codigo].titulo + "\n\n" + sample[codigo].texto),
+            clean_html_text(
+                "Título: " + sample[codigo].titulo + "\n\n" + sample[codigo].texto
+            ),
             PROMPT,
         )
         results[codigo] = result
-        return results
 
     print("All extractions completed.")
     return results
 
 
 def evaluate_extraction_per_column(extraction_results, ground_truth):
-    corrects = {
-        field: 0 for field in models.Licitação.model_fields.keys()
-    }
+    corrects = {field: 0 for field in models.Licitação.model_fields.keys()}
     null = {field: 0 for field in models.Licitação.model_fields.keys()}
     # compare with data_abertura normalizada
     for codigo in ground_truth:
@@ -159,7 +156,7 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
                     corrects[field] += 1
                 else:
                     print(
-                        f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field + "_normalizada"]}, Got: {extraction_dump[field]}"
+                        f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field + '_normalizada']}, Got: {extraction_dump[field]}"
                     )
             elif field in [
                 "objeto",
@@ -184,7 +181,7 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
                 # print(f"Field '{field}' is correct.")
             else:
                 if field == "tipo_documento":
-                    print(f"titulo: {ground_truth_dump["titulo"]}")
+                    print(f"titulo: {ground_truth_dump['titulo']}")
                 print(
                     f"Field '{field}' is incorrect - Expected: {ground_truth_dump[field]}, Got: {extraction_dump[field]}"
                 )
@@ -198,10 +195,15 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
     # pretty print metrics in a single line
     print("\nEvaluation Metrics (Accuracy):")
     for field, metric in metrics.items():
+        if field == "raciocínio":
+            continue
+        metrics[field] = f"{metric['accuracy']:.2%}"
         print(f"{field}: {metric['accuracy']:.2%}", end=", ")
 
     print()
     for field in null:
+        if field == "raciocínio":
+            continue
         print(f"{field}: {null[field]}", end=", ")
     return metrics
 
@@ -221,7 +223,7 @@ def main():
             for codigo, result in extraction_results.items()
             if result is not None
         }
-        metrics =         evaluate_extraction_per_column(
+        metrics = evaluate_extraction_per_column(
             extraction_results, utils.read_csv_to_dict_of_ground_truth()
         )
         save_doc = {

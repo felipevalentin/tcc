@@ -64,6 +64,7 @@ class NomeDoDocumento(StrEnum):
     TERMO_DE_ADJUCACAO = "Termo de Adjucação"
     TERMO_DE_HOMOLOGACAO = "Termo de Homologação"
 
+
 class Licitação(BaseModel):
     raciocínio: str
     nome_do_documento: NomeDoDocumento
@@ -97,7 +98,7 @@ class GroundTruth(BaseModel):
     data_de_abertura_normalizada: Optional[datetime] = Field(
         alias="Data Abertura Normalizada"
     )
-    informações: Optional[str] = Field(alias="Informacoes")
+    informações_do_edital: Optional[str] = Field(alias="Informacoes")
     signatário: Optional[str] = Field(alias="Signatário")
     cargo_do_signatário: Optional[str] = Field(alias="Cargo do Signatário")
 
