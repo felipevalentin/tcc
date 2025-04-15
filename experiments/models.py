@@ -101,14 +101,3 @@ class GroundTruth(BaseModel):
     informações_do_edital: Optional[str] = Field(alias="Informacoes")
     signatário: Optional[str] = Field(alias="Signatário")
     cargo_do_signatário: Optional[str] = Field(alias="Cargo do Signatário")
-
-    # @field_validator("data_abertura")
-    # def validate_data_abertura(cls, value: Optional[datetime]) -> Optional[datetime]:
-    #     if value is not None:
-    #         if not (2000 <= value.year <= 2040):
-    #             raise ValueError("data_abertura year must be between 2000 and 2040")
-    #     return value
-    # 2025-04-05T19:29
-    # 2025-04-05T19:29:00
-    # 2025-04-05T19:29:00+00:00
-    # ano 2025 mes 04 dia 05 hora 19 minuto 29
