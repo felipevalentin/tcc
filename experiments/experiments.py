@@ -19,21 +19,25 @@ OLLAMA_HOST = "https://ollama-dev.ceos.ufsc.br/"
 PROMPT = """Você é um assistente especializado na extração de informações de licitações. 
 Extraia as seguintes informações de um documento de licitação:
 
-- Reasoning: Raciocínio ou justificativa, se presente.
-- Tipo de Documento: Conforme indicado no título do documento.
-- Número Processo Licitatório: No formato "número/ano" (ex.: 1234/2020).
-- Município: Nome do município de Santa Catarina onde ocorreu a licitação.
-- Modalidade: Modalidade da licitação.
-- Formato da Modalidade (opcional): Se informado.
-- Número da Modalidade: Também no formato "número/ano".
+- Raciocínio: empregado na extração dos campos abaixo.
+- Nome Do Documento: Presente no título do documento.
+- Número Do Processo Administrativo
+- Município: de Santa Catarina onde ocorreu a licitação.
+- Modalidade: da licitação.
+- Formato Da Modalidade (opcional): Presencial ou Eletrônica.
+- Número Da Modalidade: da licitação.
 - Objeto: Descrição completa do objeto da licitação, material ou serviço.
-- Data de Abertura (opcional): Data de abertura do processo.
-- Informações (opcional): Endereço do site onde o edital pode ser encontrado.
+- Data De Abertura (opcional): Data de abertura do processo licitatório.
+- Informações Do Edital (opcional): onde o edital pode ser encontrado.
 - Signatário (opcional): Nome da pessoa que assinou o documento.
-- Cargo do Signatário (opcional): Cargo da pessoa que assinou o documento.
+- Cargo Do Signatário (opcional): Cargo da pessoa que assinou o documento. 
 
-Caso algum campo não esteja presente, indique-o como null.
+Retorne como JSON.
 """
+# Signatário pode ser um campo complexo com nome e cargo e podemos ter uma lista de signatários
+# Modalidade pode ser um campo complexo, com Modalidade, Formato e Número
+# Informações pode ter um nome melhor -> Informações do Edital, com endereço físico, telefone e lista de sites.
+# Data de Abertura pode ser um campo complexo
 MODEL_NAME = "llama3.3:70b"
 MAX_RETRIES = 3
 
@@ -52,14 +56,14 @@ def extract(client, task_id, codigo, context, prompt):
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": context},
                 ],
-                format=models.GroundTruthExtractedFields.model_json_schema(),
+                format=models.Licitação.model_json_schema(),
                 options={
                     "temperature": 0,
                     "seed": 42,
                 },
             )
             content = response["message"]["content"]
-            extracted_data = models.GroundTruthExtractedFields.model_validate_json(
+            extracted_data = models.Licitação.model_validate_json(
                 content, strict=True
             )
             print(
@@ -94,10 +98,11 @@ def process_documents(client):
             client,
             task_id,
             codigo,
-            clean_html_text(sample[codigo].titulo + "\n" + sample[codigo].texto),
+            clean_html_text("Título: " + sample[codigo].titulo + "\n\n" + sample[codigo].texto),
             PROMPT,
         )
         results[codigo] = result
+        return results
 
     print("All extractions completed.")
     return results
@@ -105,9 +110,9 @@ def process_documents(client):
 
 def evaluate_extraction_per_column(extraction_results, ground_truth):
     corrects = {
-        field: 0 for field in models.GroundTruthExtractedFields.model_fields.keys()
+        field: 0 for field in models.Licitação.model_fields.keys()
     }
-    null = {field: 0 for field in models.GroundTruthExtractedFields.model_fields.keys()}
+    null = {field: 0 for field in models.Licitação.model_fields.keys()}
     # compare with data_abertura normalizada
     for codigo in ground_truth:
         try:
@@ -117,8 +122,8 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
             print(f"Task {codigo}: KeyError: {e}")
             break
         print(f"\nEvaluating document {codigo}...")
-        for field in models.GroundTruthExtractedFields.model_fields.keys():
-            if field == "reasoning":
+        for field in models.Licitação.model_fields.keys():
+            if field == "raciocínio":
                 continue
             nomralized_extracted = extraction_dump[field]
             normalized_ground_truth = ground_truth_dump[field]
@@ -130,7 +135,7 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
                 continue
 
             if (
-                field != "data_abertura"
+                field != "data_de_abertura"
                 and extraction_dump[field]
                 and ground_truth_dump[field]
             ):
@@ -143,7 +148,7 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
                     .lower()
                 )
 
-            if field == "data_abertura":
+            if field == "data_de_abertura":
                 normalized_ground_truth = ground_truth_dump[field + "_normalizada"]
                 if (
                     nomralized_extracted
@@ -186,7 +191,7 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
 
     total = len(ground_truth)
     metrics = {}
-    for field in models.GroundTruthExtractedFields.model_fields.keys():
+    for field in models.Licitação.model_fields.keys():
         metrics[field] = {
             "accuracy": corrects[field] / total,
         }
@@ -198,12 +203,13 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
     print()
     for field in null:
         print(f"{field}: {null[field]}", end=", ")
+    return metrics
 
 
 def main():
     print("Starting document processing...")
     prompt_hash = hashlib.md5(
-        f"{PROMPT} + {MODEL_NAME} + {models.GroundTruthExtractedFields.model_json_schema()}".encode()
+        f"{PROMPT} + {MODEL_NAME} + {models.Licitação.model_json_schema()}".encode()
     ).hexdigest()
     if not pathlib.Path(f"../resources/{prompt_hash}.json").exists():
         print("Prompt hash file not found. Processing documents...")
@@ -215,11 +221,15 @@ def main():
             for codigo, result in extraction_results.items()
             if result is not None
         }
+        metrics =         evaluate_extraction_per_column(
+            extraction_results, utils.read_csv_to_dict_of_ground_truth()
+        )
         save_doc = {
             "time": datetime.datetime.now().isoformat(),
+            "metrics": metrics,
             "prompt": PROMPT,
             "model": MODEL_NAME,
-            "schema": models.GroundTruthExtractedFields.model_json_schema(),
+            "schema": models.Licitação.model_json_schema(),
             "serializable": serializable_results,
         }
         with open(f"../resources/{prompt_hash}.json", "w+") as f:
@@ -231,12 +241,12 @@ def main():
             data = json.load(f)
             serializable_results = data["serializable"]
             extraction_results = {
-                codigo: models.GroundTruthExtractedFields.model_validate(fields)
+                codigo: models.Licitação.model_validate(fields)
                 for codigo, fields in serializable_results.items()
             }
-    evaluate_extraction_per_column(
-        extraction_results, utils.read_csv_to_dict_of_ground_truth()
-    )
+        evaluate_extraction_per_column(
+            extraction_results, utils.read_csv_to_dict_of_ground_truth()
+        )
 
 
 def clean_html_text(input_text):

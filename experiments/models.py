@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from municipios import Municipio
+from municipios import Município
 
 
 class Sample(BaseModel):
@@ -43,12 +43,12 @@ class Modalidade(StrEnum):
     TOMADA_DE_PRECOS = "Tomada de Preços"
 
 
-class FormatoModalidade(StrEnum):
-    ELETRONICO = "Eletrônico"
+class FormatoDaModalidade(StrEnum):
+    ELETRONICA = "Eletrônica"
     PRESENCIAL = "Presencial"
 
 
-class TipoDocumento(StrEnum):
+class NomeDoDocumento(StrEnum):
     APOSTILAMENTO = "Apostilamento"
     ATA_DE_ABERTURA = "Ata de Abertura"
     AVISO_DE_LICITACAO = "Aviso de Licitação"
@@ -64,80 +64,42 @@ class TipoDocumento(StrEnum):
     TERMO_DE_ADJUCACAO = "Termo de Adjucação"
     TERMO_DE_HOMOLOGACAO = "Termo de Homologação"
 
-class GroundTruthExtractedFields(BaseModel):
-    model_config = ConfigDict(title='Licitação')
-    reasoning: str = Field(title='Reasoning', description="Any reasoning need you can put here")
-    tipo_documento: TipoDocumento = Field(
-        title="Tipo de Documento",
-        description="Presente no título do documento",
-    )
-    nr_processo_licitatorio: str = Field(
-        title="Número Processo Licitatório",
-        description="Processo administrativo 'numero/ano'",
-        pattern="^[0-9]+/[0-9]{4}$"
-    )
-    municipio: Municipio = Field(
-        title="Município",
-        description="Nome do município de Santa Catarina onde ocorreu a licitação",
-    )
-    modalidade: Modalidade = Field(
-        title="Modalidade",
-        description="Modalidade da Licitação",
-    )
-    formato_modalidade: Optional[FormatoModalidade] = Field(
-        title="Formato da Modalidade",
-        default=None, description="Modalidade formato_modalidade",
-    )
-    nr_modalidade: str = Field(
-        title="Número da Modalidade",
-        description="Modalidade formato_modalidade 'numero/ano'",
-        pattern="^[0-9]+/[0-9]{4}$"
-
-    )
-    objeto: str = Field(
-        title="Objeto",
-        description="Descrição do objeto da licitação completa, incluindo todos detalhes",
-    )
-    data_abertura: Optional[datetime] = Field(
-        title="Data de abertura",
-        default=None,
-        description="Data de abertura",
-    )
-    informacoes: Optional[str] = Field(
-        title="Informações",
-        default=None, description="Site onde é possível encontrar o Edital",
-    )
-    signatario: Optional[str] = Field(
-        title="Signatário",
-        default=None, description="Nome de quem assinou o documento",
-    )
-    cargo_do_signatario: Optional[str] = Field(
-        title="Cargo do Signtário",
-        default=None, description="Cargo de quem assinou o documento",
-    )
+class Licitação(BaseModel):
+    raciocínio: str
+    nome_do_documento: NomeDoDocumento
+    numero_do_processo_licitatório: str
+    município: Município
+    modalidade: Modalidade
+    formato_da_modalidade: Optional[FormatoDaModalidade]
+    número_da_modalidade: str
+    objeto: str
+    data_de_abertura: Optional[datetime]
+    informações_do_edital: Optional[str]
+    signatário: Optional[str]
+    cargo_do_signatário: Optional[str]
 
 
 class GroundTruth(BaseModel):
     codigo: str = Field(alias="Código")
     titulo: str = Field(alias="Título")
-    tipo_documento: str = Field(alias="Tipo de Documento")
-    nr_processo_licitatorio: str = Field(alias="NrProLicitatório")
+    nome_do_documento: str = Field(alias="Tipo de Documento")
+    numero_do_processo_licitatório: str = Field(alias="NrProLicitatório")
     data_hora_dom: str = Field(alias="DataHoraDOM")
     cod_registro_info_sfinge: Optional[str] = Field(alias="cod_registro_info_sfinge")
-    municipio: Optional[str] = Field(alias="Município")
+    município: Optional[str] = Field(alias="Município")
     entidade: str = Field(alias="Entidade")
     categoria_dom: str = Field(alias="CategoriaDOM")
     modalidade: str = Field(alias="Modalidade")
-    formato_modalidade: Optional[str] = Field(alias="Formato")
-    nr_modalidade: str = Field(alias="NrModalidade")
+    formato_da_modalidade: Optional[str] = Field(alias="Formato")
+    número_da_modalidade: str = Field(alias="NrModalidade")
     objeto: str = Field(alias="Objeto")
-    data_abertura: Optional[str] = Field(alias="Data Abertura")
-    data_abertura_normalizada: Optional[datetime] = Field(
+    data_de_abertura: Optional[str] = Field(alias="Data Abertura")
+    data_de_abertura_normalizada: Optional[datetime] = Field(
         alias="Data Abertura Normalizada"
     )
-    informacoes: Optional[str] = Field(alias="Informacoes")
-    signatario: Optional[str] = Field(alias="Signatário")
-    cargo_do_signatario: Optional[str] = Field(alias="Cargo do Signatário")
+    informações: Optional[str] = Field(alias="Informacoes")
+    signatário: Optional[str] = Field(alias="Signatário")
+    cargo_do_signatário: Optional[str] = Field(alias="Cargo do Signatário")
 
     # @field_validator("data_abertura")
     # def validate_data_abertura(cls, value: Optional[datetime]) -> Optional[datetime]:
