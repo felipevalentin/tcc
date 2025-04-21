@@ -2,9 +2,9 @@ import csv
 import json
 
 # Paths to your input files
-csv_path = "../resources/ground_truth_100.csv"
+csv_path = "../resources/ground_truth_new.csv"
 json_path = "../resources/sample_150.json"
-output_json_path = "../resources/sample_100.json"
+output_json_path = "../resources/sample_new.json"
 
 # Read codes from CSV
 codes_set = set()

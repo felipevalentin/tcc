@@ -48,34 +48,42 @@ class FormatoDaModalidade(StrEnum):
     PRESENCIAL = "Presencial"
 
 
-class NomeDoDocumento(StrEnum):
-    APOSTILAMENTO = "Apostilamento"
-    ATA_DE_ABERTURA = "Ata de Abertura"
+class TipoDoDocumento(StrEnum):
     AVISO_DE_LICITACAO = "Aviso de Licitação"
-    CONTRATO = "Contrato"
+    EXTRATO_DE_CONTRATO = "Extrato do Contrato"
+    EXTRATO_DE_INEXIGIBILIDADE = "Extrato de Inexibilidade"
     EDITAL = "Edital"
     ERRATA = "Errata"
-    JULGAMENTO = "Julgamento"
-    LICITACAO = "Licitação"
-    RATIFICACAO = "Ratificacao"
-    # RESULTADO = "Resultado"
-    SUSPENSAO = "Suspensão"
-    TERMO_ADITIVO = "Termo Aditivo"
-    TERMO_DE_ADJUCACAO = "Termo de Adjucação"
     TERMO_DE_HOMOLOGACAO = "Termo de Homologação"
+    TERMO_ADITIVO = "Termo Aditivo"
+
+
+class Raciocínio(BaseModel):
+    nome_do_documento: str
+    numero_do_processo_licitatório: str
+    município: str
+    modalidade: str
+    formato_da_modalidade: str
+    número_da_modalidade: str
+    objeto: str
+    data_de_abertura: str
+    site_do_edital: str
+    signatário: str
+    cargo_do_signatário: str
 
 
 class Licitação(BaseModel):
-    raciocínio: str
-    nome_do_documento: NomeDoDocumento
-    numero_do_processo_licitatório: str
+    tipo_do_documento: Optional[TipoDoDocumento]
+    numero_do_processo_licitatório: str = Field(pattern=r"^[0-9]+/[0-9]+$")
     município: Município
     modalidade: Modalidade
     formato_da_modalidade: Optional[FormatoDaModalidade]
-    número_da_modalidade: str
+    número_da_modalidade: str = Field(pattern=r"^[0-9]+/[0-9]+$")
     objeto: str
-    data_de_abertura: Optional[datetime]
-    informações_do_edital: Optional[str]
+    data_de_abertura: Optional[str] = Field(
+        pattern=r"^20[0-4][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$"
+    )
+    site_do_edital: Optional[str]
     signatário: Optional[str]
     cargo_do_signatário: Optional[str]
 
@@ -83,7 +91,7 @@ class Licitação(BaseModel):
 class GroundTruth(BaseModel):
     codigo: str = Field(alias="Código")
     titulo: str = Field(alias="Título")
-    nome_do_documento: str = Field(alias="Tipo de Documento")
+    tipo_do_documento: Optional[str] = Field(alias="Tipo de Documento")
     numero_do_processo_licitatório: str = Field(alias="NrProLicitatório")
     data_hora_dom: str = Field(alias="DataHoraDOM")
     cod_registro_info_sfinge: Optional[str] = Field(alias="cod_registro_info_sfinge")
@@ -94,10 +102,7 @@ class GroundTruth(BaseModel):
     formato_da_modalidade: Optional[str] = Field(alias="Formato")
     número_da_modalidade: str = Field(alias="NrModalidade")
     objeto: str = Field(alias="Objeto")
-    data_de_abertura: Optional[str] = Field(alias="Data Abertura")
-    data_de_abertura_normalizada: Optional[datetime] = Field(
-        alias="Data Abertura Normalizada"
-    )
-    informações_do_edital: Optional[str] = Field(alias="Informacoes")
+    data_de_abertura: Optional[datetime] = Field(alias="Data Abertura Normalizada")
+    site_do_edital: Optional[str] = Field(alias="Informacoes")
     signatário: Optional[str] = Field(alias="Signatário")
     cargo_do_signatário: Optional[str] = Field(alias="Cargo do Signatário")

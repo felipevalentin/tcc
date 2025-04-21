@@ -16,7 +16,6 @@ headers = [
     "NrModalidade",
     "Objeto",
     "Justificativa",
-    "Data Abertura",
     "Data Abertura Normalizada",
     "Informacoes",
     "Signatário",
@@ -55,7 +54,6 @@ for item in data:
         "",  # NrModalidade
         "",  # Objeto
         "",  # Justificativa
-        "",  # Data Abertura
         "",  # Data Abertura Normalizada
         "",  # Informacoes
         "",  # Signatário
