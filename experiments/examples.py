@@ -11,7 +11,7 @@ www.curitibanos.sc.gov.br e Portal de Compras Públicas
 Roque Stanguerlin
 Presidente do Fundo"""
 EXAMPLE_1_OUTPUT = """{
-    "tipo_do_documento": "Termo de Homologação",
+    "tipo_do_documento": "Homologação",
     "numero_do_processo_licitatório": "34/2022",
     "município": "Curitibanos",
     "modalidade": "Pregão",
@@ -37,7 +37,7 @@ DO PRAZO: FICA RENOVADO O CONTRATO ADMINISTRATIVO Nº 034/SAMAE/2023 POR MAIS UM
 TIJUCAS/SC, 18 DE DEZEMBRO DE 2023."""
 
 EXAMPLE_2_OUTPUT = """{
-    "nome_do_documento": "Termo de Aditivo",
+    "nome_do_documento": "Aditivo",
     "numero_do_processo_licitatório": "53/2023",
     "município": "Tíjucas",
     "modalidade": "Pregão",

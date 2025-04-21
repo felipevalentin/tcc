@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Optional
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, HttpUrl
 
 from municipios import Município
 
@@ -49,13 +49,24 @@ class FormatoDaModalidade(StrEnum):
 
 
 class TipoDoDocumento(StrEnum):
+    APOSTILAMENTO = "Apostilamento"
+    ANULACAO = "Anulação"
+    ATA_DE_REGISTRO_DE_PRECOS = "Ata de Registro de Preços"
+    ATA_DE_RECEBIMENTO_E_ABERTURA = "Ata de Recebimento e Abertura"
+    ADJUCACAO = "Adjucação"
     AVISO_DE_LICITACAO = "Aviso de Licitação"
-    EXTRATO_DE_CONTRATO = "Extrato do Contrato"
-    EXTRATO_DE_INEXIGIBILIDADE = "Extrato de Inexibilidade"
+    AVISO_DE_SUSPENSAO = "Aviso de Suspensão"
+    AVISO_DE_CANCELAMENTO = "Aviso de Cancelamento"
+    CONTRATO = "Contrato"
+    INEXIGIBILIDADE = "Inexibilidade"
     EDITAL = "Edital"
     ERRATA = "Errata"
-    TERMO_DE_HOMOLOGACAO = "Termo de Homologação"
-    TERMO_ADITIVO = "Termo Aditivo"
+    DISPENSA = "Dispensa"
+    TERMO_DE_HOMOLOGACAO = "Homologação"
+    TERMO_ADITIVO = "Aditivo"
+    JULGAMENTO = "Julgamento"
+    RESULTADO = "Resultado"
+    RATIFICACAO = "Ratificação"
 
 
 class Raciocínio(BaseModel):
@@ -73,7 +84,7 @@ class Raciocínio(BaseModel):
 
 
 class Licitação(BaseModel):
-    tipo_do_documento: Optional[TipoDoDocumento]
+    tipo_do_documento: TipoDoDocumento
     numero_do_processo_licitatório: str = Field(pattern=r"^[0-9]+/[0-9]+$")
     município: Município
     modalidade: Modalidade
@@ -106,3 +117,9 @@ class GroundTruth(BaseModel):
     site_do_edital: Optional[str] = Field(alias="Informacoes")
     signatário: Optional[str] = Field(alias="Signatário")
     cargo_do_signatário: Optional[str] = Field(alias="Cargo do Signatário")
+
+# objeto ajustar
+# Signatário pode ser um campo complexo com nome e cargo e podemos ter uma lista de signatários
+# Modalidade pode ser um campo complexo, com Modalidade, Formato e Número
+# Informações pode ter um nome melhor -> Informações do Edital, com endereço físico, telefone e lista de sites.
+# Data de Abertura pode ser um campo complexo ou string com validação

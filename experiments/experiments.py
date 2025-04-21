@@ -21,7 +21,7 @@ OLLAMA_HOST = "https://ollama-dev.ceos.ufsc.br/"
 PROMPT = """Você é um assistente especializado na extração de informações de licitações. 
 Sua tarefa é ler um texto de licitação e extrair as seguintes informações **exatamente como aparecem no texto**, retornando um JSON estruturado conforme o modelo abaixo:
 
-- Tipo Do Documento (Opcional): Qual o tipo do documento, Exemplo Aviso de Licitação Se não informado retorne null.
+- Tipo Do Documento: Qual o tipo do documento, Exemplo Aviso de Licitação
 - Número Do Processo Administrativo: deve seguir o formato número/ano, como por exemplo "12/2024, quando ausente igual ao número da modalidade".
 - Município: de Santa Catarina onde ocorreu a licitação.
 - Modalidade: da licitação.
@@ -44,12 +44,6 @@ Se não informado retorne null.
 **Exemplo 1 de saída**
 {EXEMPLO_1_OUTPUT}
 """
-# objeto ajustar
-# nome do documento ajustar
-# Signatário pode ser um campo complexo com nome e cargo e podemos ter uma lista de signatários
-# Modalidade pode ser um campo complexo, com Modalidade, Formato e Número
-# Informações pode ter um nome melhor -> Informações do Edital, com endereço físico, telefone e lista de sites.
-# Data de Abertura pode ser um campo complexo ou string com validação
 MODEL_NAME = "llama3.3:70b"
 OPTIONS = {
     "temperature": 0,
@@ -66,32 +60,17 @@ def extract(client, task_id, codigo, context, prompt):
         )
         try:
             start_time = time.perf_counter()
+            prompt = prompt.replace("{EXEMPLO_1}", examples.EXAMPLE_1).replace(
+                "{EXEMPLO_1_OUTPUT}", examples.EXAMPLE_1_OUTPUT
+            ),
             response = client.chat(
                 model=MODEL_NAME,
                 messages=[
-                    {
-                        "role": "system",
-                        "content": prompt
-                        # .replace(
-                        #     "{SCHEMA}", str(models.Licitação.model_json_schema())
-                        # )
-                        .replace("{EXEMPLO_1}", examples.EXAMPLE_1).replace(
-                            "{EXEMPLO_1_OUTPUT}", examples.EXAMPLE_1_OUTPUT
-                        ),
-                        # .replace(
-                        #     "{EXEMPLO_2}", examples.EXAMPLE_2
-                        # )
-                        # .replace(
-                        #     "{EXEMPLO_2_OUTPUT}", examples.EXAMPLE_2_OUTPUT
-                        # )
-                        # .replace(
-                        #     "{EXEMPLO_3}", examples.EXAMPLE_3
-                        # )
-                        # .replace(
-                        #     "{EXEMPLO_3_OUTPUT}", examples.EXAMPLE_3_OUTPUT
-                        # ),
-                    },
-                    {"role": "user", "content": f"**CONTEXTO**\n{context}"},
+                    # {
+                    #     "role": "system",
+                    #     "content": prompt
+                    # },
+                    {"role": "user", "content": f"{prompt}\n**CONTEXTO**\n{context}"},
                 ],
                 format=models.Licitação.model_json_schema(),
                 options=OPTIONS,
