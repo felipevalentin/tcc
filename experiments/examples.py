@@ -1,5 +1,4 @@
 EXAMPLE_1 = """Titulo: HOMOLOGAÇÃO DE PREGÃO ELETRÔNICO 34/2022
-
 Corpo: REPUBLICAÇÃO EDITAL DE PREGÃO ELETRÔNICO Nº 34/2022
 O FUNDO MUNICIPAL DE SAÚDE DE CURITIBANOS, Estado de Santa Catarina, torna público, para quem interessar possa, que fará realizar licitação na modalidade pregão, sob a forma Eletrônico, através do site www.portaldecompraspublicas.com.br, do tipo Menor Preço Global o qual será processado e julgado em conformidade com a Lei Federal nº. 10.520/02, Decreto Federal 10.024/19, Lei Complementar nº 123/06, Decreto Municipal 5338/2020 com aplicação subsidiária da Lei Federal nº. 8.666/93, e suas respectivas alterações e legislação aplicável, pelo Pregoeiro e sua Equipe de Apoio, designados pela Portaria n° 426/2020, cujo objeto é a AQUISIÇÃO DE SISTEMA DE INFORMÁTICA PARA REGISTRO, TRATAMENTO E TRANSMISSÃO DE DADOS DOS SERVIÇOS E ATENDIMENTOS DE SAÚDE NO ÂMBITO DO MUNICÍPIO DE CURITIBANOS, CONFORME TERMO DE REFERÊNCIA. Sendo que a proposta deve ser apresentada até o dia e hora abaixo especificados.
 DATA DE APRESENTAÇÃO DA PROPOSTA: ATÉ DIA 23/06/2022
@@ -23,7 +22,6 @@ EXAMPLE_1_OUTPUT = """{
     "signatário": Roque Stanguerlin,
     "cargo_do_signatário": Presidente do Fundo
 }"""
-
 EXAMPLE_2 = """Titulo: EXTRATO SEGUNDO TERMO ADITIVO DE PRAZO AO CONTRATO Nº 034/SAMAE/2023 DO PROCESSO DE LICITAÇÃO Nº 053/SAMAE/2023 - PREGÃO Nº 027/SAMAE/2023
 Corpo: EXTRATO TERMO CONTRATO
 SERVIÇO AUTÔNOMO MUNICIPAL DE ÁGUA E ESGOTO
@@ -35,7 +33,6 @@ CONTRATADO:LUCCA COMUNICAÇÃO VISUAL E ESTRUTURAS EIRELI.
 OBJETO: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM FORNECIMENTO E INSTALAÇÃO DE GUARDA-CORPOS EM AÇO GALVANIZADO, PARA O SAMAE- SERVIÇO AUTÔNOMO MUNICIPAL DE ÁGUA E ESGOTO, DO MUNICÍPIO DE TIJUCAS/SC.
 DO PRAZO: FICA RENOVADO O CONTRATO ADMINISTRATIVO Nº 034/SAMAE/2023 POR MAIS UM PERÍODO DE 90 (NOVENTA) DIAS, INICIANDO-SE EM 01/01/2024, COM TÉRMINO EM 31/03/2024.
 TIJUCAS/SC, 18 DE DEZEMBRO DE 2023."""
-
 EXAMPLE_2_OUTPUT = """{
     "nome_do_documento": "Aditivo",
     "numero_do_processo_licitatório": "53/2023",

@@ -1,10 +1,14 @@
-import html
-from pathlib import Path
-import json
 import csv
+import html
+import json
+import re
 from collections import Counter
+from pathlib import Path
 from typing import Dict, Union
-from models import Sample, GroundTruth
+
+from bs4 import BeautifulSoup
+
+from models import GroundTruth, Sample
 
 
 def read_json_to_dict_of_samples(
@@ -53,3 +57,12 @@ def list_models(client):
     response = client.list()
     for model in response.models:
         print(model.model, model.details.parameter_size)
+
+
+def clean_html_text(input_text: str) -> str:
+    # Parse and extract text from HTML
+    text_without_html = BeautifulSoup(input_text, "html.parser").get_text()
+    # Unescape HTML entities
+    text_unescaped = html.unescape(text_without_html)
+    text_normalized = re.sub(r"\n+", "\n", text_unescaped)
+    return text_normalized.strip()

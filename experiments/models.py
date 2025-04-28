@@ -118,6 +118,7 @@ class GroundTruth(BaseModel):
     signatário: Optional[str] = Field(alias="Signatário")
     cargo_do_signatário: Optional[str] = Field(alias="Cargo do Signatário")
 
+
 # objeto ajustar
 # Signatário pode ser um campo complexo com nome e cargo e podemos ter uma lista de signatários
 # Modalidade pode ser um campo complexo, com Modalidade, Formato e Número

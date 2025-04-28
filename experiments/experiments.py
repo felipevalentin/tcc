@@ -1,56 +1,25 @@
+import datetime
+import hashlib
 import html
+import json
 import pathlib
 import re
-import time
 import sqlite3
-import datetime
-import json
-import examples
+import time
 
 import Levenshtein
 import ollama
 import unidecode
 from bs4 import BeautifulSoup
-
-import utils
-import models
-import hashlib
 from pydantic import ValidationError
 
-OLLAMA_HOST = "https://ollama-dev.ceos.ufsc.br/"
-PROMPT = """Você é um assistente especializado na extração de informações de licitações. 
-Sua tarefa é ler um texto de licitação e extrair as seguintes informações **exatamente como aparecem no texto**, retornando um JSON estruturado conforme o modelo abaixo:
+import examples
+import models
+import utils
+from logger import get_logger
+from repository import get_connection, init_db
 
-- Tipo Do Documento: Qual o tipo do documento, Exemplo Aviso de Licitação
-- Número Do Processo Administrativo: deve seguir o formato número/ano, como por exemplo "12/2024, quando ausente igual ao número da modalidade".
-- Município: de Santa Catarina onde ocorreu a licitação.
-- Modalidade: da licitação.
-- Formato Da Modalidade (opcional): Presencial ou Eletrônica. Se não informado retorne null.
-- Número Da Modalidade: da licitação. Deve seguir o formato número/ano, como por exemplo "12/2024".
-- Objeto: Extraia **exatamente como descrito no documento** o objeto da licitação, sem resumir, adicionar texto, reescrever ou interpretar.
-- Data De Abertura (opcional): extraia a **data e horário completos** da abertura do processo licitatório no formato ISO 8601 (exemplo: `2024-10-13T10:30`). **NÃO invente uma data.** Se não informado retorne null.
-    * não extrair se não estiver informado que é de abertura ou início de sessão.
-- Site Do Edital (opcional): apenas se o endereço do site estiver no texto, não inferir a partir de email. exemplo www.saolourenco.sc.gov.br. Se não informado retorne null.
-    * não extrair se não estiver informado que é onde pode ser encontrado o edital.
-- Signatário (opcional): Nome da pessoa que assinou o documento. Se não informado retorne null.
-- Cargo Do Signatário (opcional): Cargo da pessoa que assinou o documento. Se não informado retorne null.
-
-**Responda em Json**
-Se não informado retorne null.
-
-**Exemplo 1 de entrada**
-{EXEMPLO_1}
-
-**Exemplo 1 de saída**
-{EXEMPLO_1_OUTPUT}
-"""
-MODEL_NAME = "llama3.3:70b"
-OPTIONS = {
-    "temperature": 0,
-    "seed": 42,
-}
-MAX_RETRIES = 3
-
+logger = get_logger(__name__)
 
 def extract(client, task_id, codigo, context, prompt):
     global PROMPT
@@ -60,9 +29,11 @@ def extract(client, task_id, codigo, context, prompt):
         )
         try:
             start_time = time.perf_counter()
-            prompt = prompt.replace("{EXEMPLO_1}", examples.EXAMPLE_1).replace(
-                "{EXEMPLO_1_OUTPUT}", examples.EXAMPLE_1_OUTPUT
-            ),
+            prompt = (
+                prompt.replace("{EXEMPLO_1}", examples.EXAMPLE_1).replace(
+                    "{EXEMPLO_1_OUTPUT}", examples.EXAMPLE_1_OUTPUT
+                ),
+            )
             response = client.chat(
                 model=MODEL_NAME,
                 messages=[
@@ -269,11 +240,14 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
         if field == "raciocínio":
             continue
         print(f"{field}: {null[field]}", end=", ")
+    print()
     return metrics
 
 
-def main():
-    print("Starting document processing...")
+def run():
+    logger.info("Starting experiments")
+    client_db = get_connection()
+    init_db(client_db)
     prompt_hash = hashlib.md5(
         f"{PROMPT} + {MODEL_NAME} + {models.Licitação.model_json_schema()}".encode()
     ).hexdigest()
@@ -313,60 +287,3 @@ def main():
         evaluate_extraction_per_column(
             extraction_results, utils.read_csv_to_dict_of_ground_truth()
         )
-
-
-def clean_html_text(input_text):
-    soup = BeautifulSoup(input_text, "html.parser")
-    text_without_html = soup.get_text()
-    text_utf8 = html.unescape(text_without_html)
-    text_limited_breaks = re.sub(r"\n+", "\n", text_utf8)
-
-    return text_limited_breaks.strip()
-
-
-def init_db(path="experiments.db"):
-    conn = sqlite3.connect(path)
-    cursor = conn.cursor()
-    # noinspection SqlNoDataSourceInspection
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS experiments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            created_at TEXT NOT NULL,
-            description TEXT NOT NULL,
-            model TEXT NOT NULL,
-            options TEXT NOT NULL,
-            metrics TEXT NOT NULL,
-            prompt TEXT NOT NULL,
-            schema TEXT NOT NULL,
-            output TEXT NOT NULL,
-        )
-    """)
-    conn.commit()
-    return conn
-
-
-def save_experiment(conn, description, model, options, metrics, prompt, schema, output):
-    cursor = conn.cursor()
-    # noinspection SqlNoDataSourceInspection
-    cursor.execute(
-        """
-        INSERT INTO experiments (created_at, description, model, options, metrics, prompt, schema, output)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """,
-        (
-            datetime.datetime.now(datetime.UTC).isoformat(),
-            description,
-            prompt,
-            json.dumps(schema, ensure_ascii=False),
-            json.dumps(metrics, ensure_ascii=False),
-            json.dumps(output, ensure_ascii=False),
-        ),
-    )
-    conn.commit()
-
-
-if __name__ == "__main__":
-    start_time = time.perf_counter()
-    main()
-    end_time = time.perf_counter()
-    print(f"\nTotal execution time: {end_time - start_time:.2f} seconds")
