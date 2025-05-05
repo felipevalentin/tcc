@@ -8,7 +8,7 @@ from typing import Dict, Union
 
 from bs4 import BeautifulSoup
 
-from models import GroundTruth, Sample
+from models import GroundTruth, Sample, Licitação
 
 
 def read_json_to_dict_of_samples(
@@ -28,7 +28,6 @@ def read_csv_to_dict_of_ground_truth(
     with file_path.open(mode="r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         for row in reader:
-            # print(row)
             cleaned_row = {
                 key: (None if value == "NULL" else value) for key, value in row.items()
             }
@@ -56,7 +55,7 @@ def list_models(client):
     # llama3.3:70b 70.6B
     response = client.list()
     for model in response.models:
-        print(model.model, model.details.parameter_size)
+        yield model.model, model.details.parameter_size
 
 
 def clean_html_text(input_text: str) -> str:
@@ -66,3 +65,34 @@ def clean_html_text(input_text: str) -> str:
     text_unescaped = html.unescape(text_without_html)
     text_normalized = re.sub(r"\n+", "\n", text_unescaped)
     return text_normalized.strip()
+
+
+def serialize_experiment(
+    description, model, options, metric, prompt, schema, extraction_results, ground_truth
+):
+    serializable_results = {
+        codigo: result.model_dump(mode="json")
+        for codigo, result in extraction_results.items()
+        if result is not None
+    }
+    data = {
+        "metrics": metric,
+        "prompt": prompt,
+        "options": options,
+        "model": model,
+        "schema": schema,
+        "serializable": serializable_results,
+        "description": description,
+        "ground_truth": ground_truth,
+    }
+    return data
+
+
+def load_experiment(experiment):
+    import ast
+
+    extraction_results = {
+        codigo: Licitação.model_validate(fields)
+        for codigo, fields in ast.literal_eval(experiment[8]).items()
+    }
+    return extraction_results

@@ -6,10 +6,12 @@ from logger import get_logger
 
 logger = get_logger(__name__)
 
-def generate_hash_key(value: str) -> str:
-    return hashlib.sha256(value.encode('utf-8')).hexdigest()
 
-def get_connection(path: str = "experiments.db"):
+def generate_hash_key(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def get_connection(path: str = "../resources/experiments.db"):
     logger.info(f"Connecting to database at {path}")
     connection = connect(path)
     logger.info("Connected to database")
@@ -69,3 +71,15 @@ def save_experiment(
     )
     conn.commit()
     logger.info("Experiment saved")
+
+
+def get_experiment(
+    conn: Connection,
+    description: str,
+):
+    logger.info("Getting experiment")
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM experiments WHERE id = ?", (generate_hash_key(description),)
+    )
+    return cursor.fetchone()

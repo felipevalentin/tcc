@@ -33,7 +33,7 @@ ws.append(headers)
 
 # Load the JSON data from a file named 'data.json'
 with open(
-    "/Users/felipe.valentin/Desktop/personal/tcc/resources/sample_150.json",
+    "/resources/sample_150.json",
     "r",
     encoding="utf-8",
 ) as f:

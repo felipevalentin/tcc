@@ -44,7 +44,7 @@ class Modalidade(StrEnum):
 
 
 class FormatoDaModalidade(StrEnum):
-    ELETRONICA = "Eletrônica"
+    ELETRONICA = "Eletrônico"
     PRESENCIAL = "Presencial"
 
 
@@ -58,10 +58,8 @@ class TipoDoDocumento(StrEnum):
     AVISO_DE_SUSPENSAO = "Aviso de Suspensão"
     AVISO_DE_CANCELAMENTO = "Aviso de Cancelamento"
     CONTRATO = "Contrato"
-    INEXIGIBILIDADE = "Inexibilidade"
     EDITAL = "Edital"
     ERRATA = "Errata"
-    DISPENSA = "Dispensa"
     TERMO_DE_HOMOLOGACAO = "Homologação"
     TERMO_ADITIVO = "Aditivo"
     JULGAMENTO = "Julgamento"
@@ -71,7 +69,7 @@ class TipoDoDocumento(StrEnum):
 
 class Raciocínio(BaseModel):
     nome_do_documento: str
-    numero_do_processo_licitatório: str
+    numero_do_processo_administrativo: str
     município: str
     modalidade: str
     formato_da_modalidade: str
@@ -118,6 +116,16 @@ class GroundTruth(BaseModel):
     signatário: Optional[str] = Field(alias="Signatário")
     cargo_do_signatário: Optional[str] = Field(alias="Cargo do Signatário")
 
+
+class Experiment(BaseModel):
+    description: str
+    model: str
+    options: str
+    metrics: str
+    prompt: str
+    schema: str
+    output: str
+    ground_truth: str
 
 # objeto ajustar
 # Signatário pode ser um campo complexo com nome e cargo e podemos ter uma lista de signatários
