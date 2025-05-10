@@ -80,6 +80,7 @@ class Raciocínio(BaseModel):
     signatário: str
     cargo_do_signatário: str
 
+
 class LicitaçãoV0(BaseModel):
     tipo_do_documento: TipoDoDocumento
     numero_do_processo_licitatório: str
@@ -92,6 +93,7 @@ class LicitaçãoV0(BaseModel):
     site_do_edital: Optional[str]
     signatário: Optional[str]
     cargo_do_signatário: Optional[str]
+
 
 class LicitaçãoV1(BaseModel):
     tipo_do_documento: TipoDoDocumento
@@ -138,6 +140,7 @@ class Experiment(BaseModel):
     schema: str
     output: str
     ground_truth: str
+
 
 # objeto ajustar
 # Signatário pode ser um campo complexo com nome e cargo e podemos ter uma lista de signatários

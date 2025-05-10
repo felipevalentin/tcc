@@ -1,9 +1,9 @@
 import csv
 import json
 
-csv_path = "../../resources/ground_truth_new.csv"
-json_path = "../../resources/sample_150.json"
-output_json_path = "../../resources/sample_new.json"
+csv_path = "../../../resources/ground_truth_new.csv"
+json_path = "../../../resources/sample_150.json"
+output_json_path = "../../../resources/sample_new.json"
 
 codes_set = set()
 

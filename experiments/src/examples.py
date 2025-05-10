@@ -9,6 +9,7 @@ Local da retirada do Edital e Anexos:
 www.curitibanos.sc.gov.br e Portal de Compras Públicas 
 Roque Stanguerlin
 Presidente do Fundo"""
+
 EXAMPLE_1_OUTPUT = """{
     "tipo_do_documento": "Homologação",
     "numero_do_processo_licitatório": "54/2022",
@@ -22,6 +23,7 @@ EXAMPLE_1_OUTPUT = """{
     "signatário": Roque Stanguerlin,
     "cargo_do_signatário": Presidente do Fundo
 }"""
+
 EXAMPLE_2 = """Titulo: EXTRATO SEGUNDO TERMO ADITIVO DE PRAZO AO CONTRATO Nº 034/SAMAE/2023 DO PROCESSO DE LICITAÇÃO Nº 053/SAMAE/2023 - PREGÃO Nº 027/SAMAE/2023
 Corpo: EXTRATO TERMO CONTRATO
 SERVIÇO AUTÔNOMO MUNICIPAL DE ÁGUA E ESGOTO
@@ -33,6 +35,7 @@ CONTRATADO:LUCCA COMUNICAÇÃO VISUAL E ESTRUTURAS EIRELI.
 OBJETO: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM FORNECIMENTO E INSTALAÇÃO DE GUARDA-CORPOS EM AÇO GALVANIZADO, PARA O SAMAE- SERVIÇO AUTÔNOMO MUNICIPAL DE ÁGUA E ESGOTO, DO MUNICÍPIO DE TIJUCAS/SC.
 DO PRAZO: FICA RENOVADO O CONTRATO ADMINISTRATIVO Nº 034/SAMAE/2023 POR MAIS UM PERÍODO DE 90 (NOVENTA) DIAS, INICIANDO-SE EM 01/01/2024, COM TÉRMINO EM 31/03/2024.
 TIJUCAS/SC, 18 DE DEZEMBRO DE 2023."""
+
 EXAMPLE_2_OUTPUT = """{
     "nome_do_documento": "Aditivo",
     "numero_do_processo_licitatório": "27/2023",

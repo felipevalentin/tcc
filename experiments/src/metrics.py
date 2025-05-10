@@ -3,14 +3,18 @@ import re
 import Levenshtein
 import unidecode
 
-import models
+from src.models import models
 from logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def evaluate_extraction_per_column(extraction_results, ground_truth):
     fields = [f for f in models.Licitação.model_fields if f != "raciocínio"]
-    counters = {f: {"correct": 0, "true_positive": 0, "predicted_positive": 0, "nulls": 0} for f in fields}
+    counters = {
+        f: {"correct": 0, "true_positive": 0, "predicted_positive": 0, "nulls": 0}
+        for f in fields
+    }
     total = len(ground_truth)
 
     for codigo, truth in ground_truth.items():
@@ -36,19 +40,25 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
                 continue
 
             if field == "data_de_abertura":
-                match = pred_val and true_val and pred_val == true_val.strftime("%Y-%m-%dT%H:%M")
+                match = (
+                    pred_val
+                    and true_val
+                    and pred_val == true_val.strftime("%Y-%m-%dT%H:%M")
+                )
                 if match:
                     counters[field]["correct"] += 1
                     counters[field]["true_positive"] += 1
                 else:
-                    logger.info(f"Field '{field}' is incorrect\nExpected: {true_val}\nGot: {pred_val}")
+                    logger.info(
+                        f"Field '{field}' is incorrect\nExpected: {true_val}\nGot: {pred_val}"
+                    )
                 continue
 
             def normalize(val):
                 if isinstance(val, str):
                     ascii_str = unidecode.unidecode(val)
-                    kept = re.sub(r'[^A-Za-z0-9 /]+', '', ascii_str)
-                    single_spaced = re.sub(r' {2,}', ' ', kept).strip()
+                    kept = re.sub(r"[^A-Za-z0-9 /]+", "", ascii_str)
+                    single_spaced = re.sub(r" {2,}", " ", kept).strip()
                     return single_spaced.casefold()
                 return val
 
@@ -62,14 +72,18 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
                     counters[field]["correct"] += 1
                     counters[field]["true_positive"] += 1
                 else:
-                    logger.info(f"Field '{field}' is incorrect\nExpected: <{true_val}>\nGot: <{pred_val}>")
+                    logger.info(
+                        f"Field '{field}' is incorrect\nExpected: <{true_val}>\nGot: <{pred_val}>"
+                    )
                 continue
 
             if n_pred == n_true:
                 counters[field]["correct"] += 1
                 counters[field]["true_positive"] += 1
             else:
-                logger.info(f"Field '{field}' is incorrect - Expected: {true_val}, Got: {pred_val}")
+                logger.info(
+                    f"Field '{field}' is incorrect - Expected: {true_val}, Got: {pred_val}"
+                )
 
     metrics = {}
     for field in fields:
@@ -81,7 +95,9 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
         accuracy = correct / total if total else 0
         recall = tp / actual_pos if actual_pos else 0
         precision = tp / pred_pos if pred_pos else 0
-        f1_score = 2 * precision * recall / (precision + recall) if precision + recall else 0
+        f1_score = (
+            2 * precision * recall / (precision + recall) if precision + recall else 0
+        )
 
         metrics[field] = {
             "accuracy": accuracy,
@@ -90,9 +106,13 @@ def evaluate_extraction_per_column(extraction_results, ground_truth):
             "f1-score": f1_score,
         }
 
-        logger.info(f"{field}: accuracy {accuracy:.2%} recall {recall:.2%} precision {precision:.2%} f1-score {f1_score:.2%}")
+        logger.info(
+            f"{field}: accuracy {accuracy:.2%} recall {recall:.2%} precision {precision:.2%} f1-score {f1_score:.2%}"
+        )
 
     # Log null counts
-    logger.info("Null counts: " + " ".join(f"{f}: {counters[f]['nulls']}" for f in fields))
+    logger.info(
+        "Null counts: " + " ".join(f"{f}: {counters[f]['nulls']}" for f in fields)
+    )
 
     return metrics

@@ -8,7 +8,7 @@ from typing import Dict, Union
 
 from bs4 import BeautifulSoup
 
-from models import GroundTruth, Sample, Licitação
+from src.models.models import GroundTruth, Sample, Licitação
 
 
 def read_json_to_dict_of_samples(
@@ -68,7 +68,14 @@ def clean_html_text(input_text: str) -> str:
 
 
 def serialize_experiment(
-    description, model, options, metric, prompt, schema, extraction_results, ground_truth
+    description,
+    model,
+    options,
+    metric,
+    prompt,
+    schema,
+    extraction_results,
+    ground_truth,
 ):
     serializable_results = {
         codigo: result.model_dump(mode="json")

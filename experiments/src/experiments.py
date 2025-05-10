@@ -4,7 +4,7 @@ import ollama
 from pydantic import ValidationError
 
 import examples
-import models
+from src.models import models
 import repository
 import utils
 from config import MAX_RETRIES, MODEL_NAME, OLLAMA_HOST, OPTIONS, PROMPT
@@ -17,11 +17,10 @@ logger = get_logger(__name__)
 
 def extract(client, task_id, codigo, context, prompt):
     prompt = (
-        prompt.replace("{EXEMPLO_1}", examples.EXAMPLE_1).replace(
-            "{EXEMPLO_1_OUTPUT}", examples.EXAMPLE_1_OUTPUT
-        ).replace("{EXEMPLO_2}", examples.EXAMPLE_2).replace(
-            "{EXEMPLO_2_OUTPUT}", examples.EXAMPLE_2_OUTPUT
-        )
+        prompt.replace("{EXEMPLO_1}", examples.EXAMPLE_1)
+        .replace("{EXEMPLO_1_OUTPUT}", examples.EXAMPLE_1_OUTPUT)
+        .replace("{EXEMPLO_2}", examples.EXAMPLE_2)
+        .replace("{EXEMPLO_2_OUTPUT}", examples.EXAMPLE_2_OUTPUT)
     )
     for attempt in range(1, MAX_RETRIES + 1):
         logger.info(
@@ -48,7 +47,9 @@ def extract(client, task_id, codigo, context, prompt):
             )
             return extracted_data
         except ValidationError as e:
-            logger.info(f"Task {task_id}: ValidationError on attempt {attempt}. Retrying...")
+            logger.info(
+                f"Task {task_id}: ValidationError on attempt {attempt}. Retrying..."
+            )
             if attempt == MAX_RETRIES:
                 logger.info(
                     f"Task {task_id}: Validation failed after {MAX_RETRIES} attempts. Skipping."
@@ -56,7 +57,9 @@ def extract(client, task_id, codigo, context, prompt):
                 return None
 
         except Exception as e:
-            logger.info(f"Task {task_id}: Unexpected error processing document {codigo}: {e}")
+            logger.info(
+                f"Task {task_id}: Unexpected error processing document {codigo}: {e}"
+            )
             if attempt == MAX_RETRIES:
                 return None
 
@@ -105,7 +108,16 @@ def run():
             extraction_results, utils.read_csv_to_dict_of_ground_truth()
         )
 
-        data = utils.serialize_experiment(description, MODEL_NAME, OPTIONS, metric, PROMPT, models.Licitação.model_json_schema(), extraction_results, utils.read_csv_to_dict_of_ground_truth())
+        data = utils.serialize_experiment(
+            description,
+            MODEL_NAME,
+            OPTIONS,
+            metric,
+            PROMPT,
+            models.Licitação.model_json_schema(),
+            extraction_results,
+            utils.read_csv_to_dict_of_ground_truth(),
+        )
         repository.save_experiment(
             client_db,
             data["description"],
