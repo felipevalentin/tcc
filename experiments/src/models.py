@@ -80,8 +80,20 @@ class Raciocínio(BaseModel):
     signatário: str
     cargo_do_signatário: str
 
+class LicitaçãoV0(BaseModel):
+    tipo_do_documento: TipoDoDocumento
+    numero_do_processo_licitatório: str
+    município: Município
+    modalidade: Modalidade
+    formato_da_modalidade: Optional[FormatoDaModalidade]
+    número_da_modalidade: str
+    objeto: str
+    data_de_abertura: Optional[str]
+    site_do_edital: Optional[str]
+    signatário: Optional[str]
+    cargo_do_signatário: Optional[str]
 
-class Licitação(BaseModel):
+class LicitaçãoV1(BaseModel):
     tipo_do_documento: TipoDoDocumento
     numero_do_processo_licitatório: str = Field(pattern=r"^[0-9]+/[0-9]+$")
     município: Município
