@@ -1,0 +1,79 @@
+{
+  "tipo_do_documento": {
+    "type": "macro",
+    "precision": "65.28%",
+    "recall": "58.27%",
+    "f1-score": "61.58%",
+    "accuracy": "67.00%"
+  },
+  "numero_do_processo_licitatorio": {
+    "type": "non-macro",
+    "accuracy": "68.00%",
+    "recall": "68.00%",
+    "precision": "68.00%",
+    "f1-score": "68.00%"
+  },
+  "municipio": {
+    "type": "macro",
+    "precision": "93.48%",
+    "recall": "91.18%",
+    "f1-score": "92.32%",
+    "accuracy": "90.00%"
+  },
+  "modalidade": {
+    "type": "macro",
+    "precision": "85.46%",
+    "recall": "77.72%",
+    "f1-score": "81.41%",
+    "accuracy": "83.00%"
+  },
+  "formato_da_modalidade": {
+    "type": "macro",
+    "precision": "83.18%",
+    "recall": "55.84%",
+    "f1-score": "66.82%",
+    "accuracy": "72.00%"
+  },
+  "numero_da_modalidade": {
+    "type": "non-macro",
+    "accuracy": "72.00%",
+    "recall": "72.00%",
+    "precision": "72.00%",
+    "f1-score": "72.00%"
+  },
+  "objeto": {
+    "type": "non-macro",
+    "accuracy": "36.00%",
+    "recall": "36.00%",
+    "precision": "36.00%",
+    "f1-score": "36.00%"
+  },
+  "data_de_abertura": {
+    "type": "non-macro",
+    "accuracy": "78.00%",
+    "recall": "60.87%",
+    "precision": "48.28%",
+    "f1-score": "53.85%"
+  },
+  "site_do_edital": {
+    "type": "non-macro",
+    "accuracy": "84.00%",
+    "recall": "64.52%",
+    "precision": "66.67%",
+    "f1-score": "65.57%"
+  },
+  "signatario": {
+    "type": "non-macro",
+    "accuracy": "68.00%",
+    "recall": "70.93%",
+    "precision": "74.39%",
+    "f1-score": "72.62%"
+  },
+  "cargo_do_signatario": {
+    "type": "non-macro",
+    "accuracy": "63.00%",
+    "recall": "62.79%",
+    "precision": "78.26%",
+    "f1-score": "69.68%"
+  }
+}

@@ -1,64 +1,112 @@
+import hashlib
+import os
+from typing import List, Tuple, Dict
+
 import chromadb
-import torch
 from transformers import AutoModel, AutoTokenizer
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_huggingface.embeddings import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+from langchain_core.documents import Document
 
-OLLAMA_HOST = "https://ollama-dev.ceos.ufsc.br/"
 
-EXAMPLE_1 = """Titulo: HOMOLOGAÇÃO DE PREGÃO ELETRÔNICO 34/2022
-Corpo: REPUBLICAÇÃO EDITAL DE PREGÃO ELETRÔNICO Nº 34/2022
-O FUNDO MUNICIPAL DE SAÚDE DE CURITIBANOS, Estado de Santa Catarina, torna público, para quem interessar possa, que fará realizar licitação na modalidade pregão, sob a forma Eletrônico, através do site www.portaldecompraspublicas.com.br, do tipo Menor Preço Global o qual será processado e julgado em conformidade com a Lei Federal nº. 10.520/02, Decreto Federal 10.024/19, Lei Complementar nº 123/06, Decreto Municipal 5338/2020 com aplicação subsidiária da Lei Federal nº. 8.666/93, e suas respectivas alterações e legislação aplicável, pelo Pregoeiro e sua Equipe de Apoio, designados pela Portaria n° 426/2020, cujo objeto é a AQUISIÇÃO DE SISTEMA DE INFORMÁTICA PARA REGISTRO, TRATAMENTO E TRANSMISSÃO DE DADOS DOS SERVIÇOS E ATENDIMENTOS DE SAÚDE NO ÂMBITO DO MUNICÍPIO DE CURITIBANOS, CONFORME TERMO DE REFERÊNCIA. Sendo que a proposta deve ser apresentada até o dia e hora abaixo especificados.
-DATA DE APRESENTAÇÃO DA PROPOSTA: ATÉ DIA 23/06/2022
-HORÁRIO LIMITE: até 13h15 min.
-DATA DE ABERTURA DA SESSÃO: DIA 23/06/2022 HORÁRIO: às 13h16min.
-Curitibanos, 06 de junho de 2022.
-Local da retirada do Edital e Anexos: 
-www.curitibanos.sc.gov.br e Portal de Compras Públicas 
-Roque Stanguerlin
-Presidente do Fundo"""
+# ---------- CONFIG ---------- #
+CHROMA_PATH = "./chroma/rag"
+COLLECTION_NAME = "chunks"
+MODEL_ID = "neuralmind/bert-large-portuguese-cased"
 
-documents = [EXAMPLE_1]
+QUERIES = [
+    "Tipo do documento",
+    "Número do processo administrativo",
+    "Município",
+    "Modalidade",
+    "Formato da modalidade",
+    "Número da modalidade",
+    "Objeto",
+    "Data de abertura",
+    "Site do edital",
+    "Nome do Signatário",
+    "Cargo do signatário",
+]
 
-# chunking
-chunks = []
-chunk_size = 300  # number of characters per chunk
-overlap = 50  # number of characters that overlap between chunks
 
-for document in documents:
-    start = 0
-    while start < len(document):
-        end = start + chunk_size
-        chunk = document[start:end]
-        chunks.append(chunk)
-        start += chunk_size - overlap
+def _get_model_tokenizer_embedding():
+    model = AutoModel.from_pretrained(MODEL_ID)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, do_lower_case=False)
+    embedding = HuggingFaceEmbeddings(
+        model_name=MODEL_ID,
+        model_kwargs={"device": "mps"},
+        encode_kwargs={"normalize_embeddings": False},
+    )
+    return model, tokenizer, embedding
 
-# Load model without pretraining heads (only embeddings)
-model = AutoModel.from_pretrained("neuralmind/bert-large-portuguese-cased")
-tokenizer = AutoTokenizer.from_pretrained(
-    "neuralmind/bert-large-portuguese-cased", do_lower_case=False
-)
+_MODEL, _TOKENIZER, _EMBEDDING = _get_model_tokenizer_embedding()
 
+def _chunk_text(text: str, chunk_size: int, overlap: int) -> List[str]:
+    len_token = lambda x: len(_TOKENIZER.tokenize(x))
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=overlap,
+        length_function=len_token,
+        is_separator_regex=False,
+    )
+    chunks = text_splitter.split_text(text)
+    return chunks
+
+
+os.makedirs(CHROMA_PATH, exist_ok=True)
 client = chromadb.Client()
-collection = client.create_collection(name="docs")
 
-# Store each chunk using custom embeddings
-for i, chunk in enumerate(chunks):
-    input_ids = tokenizer.encode(chunk, return_tensors="pt")
-    with torch.no_grad():
-        outputs = model(input_ids)
-        encoded = outputs.last_hidden_state[0, 1:-1]  # Ignore [CLS] and [SEP]
-        embedding = encoded.mean(dim=0).tolist()
 
-    collection.add(ids=[str(i)], embeddings=[embedding], documents=[chunk])
+def _doc_id(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
-# Generate an embedding for a query
-query = "Objeto"
-input_ids = tokenizer.encode(query, return_tensors="pt")
-with torch.no_grad():
-    outputs = model(input_ids)
-    encoded = outputs.last_hidden_state[0, 1:-1]
-    query_embedding = encoded.mean(dim=0).tolist()
 
-# Search for the most relevant document
-results = collection.query(query_embeddings=[query_embedding], n_results=5)
+def _chunk_id(doc_id: str, chunk_size: int, overlap: int, idx: int) -> str:
+    return f"{doc_id}_{chunk_size}_{overlap}_{idx}"
 
-print(results["documents"])
+
+def get_chunks(
+    text: str,
+    chunk_size: int = 256,
+    overlap: int = 64,
+    top_k: int = 5,
+) -> Tuple[str, Dict]:
+    try:
+        client.delete_collection(COLLECTION_NAME)
+    except:
+        print("no collection")
+    client.create_collection(
+        COLLECTION_NAME
+    )
+    vector_store_from_client = Chroma(
+        collection_name=COLLECTION_NAME,
+        embedding_function=_EMBEDDING,
+    )
+    doc_id = _doc_id(text)
+
+    print("chunking")
+    chunks = _chunk_text(text, chunk_size, overlap)
+
+    ids, documents = [], []
+    for idx, chunk in enumerate(chunks):
+        cid = _chunk_id(doc_id, chunk_size, overlap, idx)
+        ids.append(cid)
+        documents.append(Document(chunk, id=cid, metadata={"doc_id": doc_id}))
+
+    vector_store_from_client.add_documents(
+        ids=ids,
+        documents=documents,
+    )
+
+    print("querying")
+    results = {}
+    for query in QUERIES:
+        result: List[Document] = vector_store_from_client.similarity_search(
+            query=query,
+            k=min(top_k, len(chunks)),
+            filter={"doc_id": doc_id},
+        )
+        results[query] = [r.page_content for r in result]
+
+    return doc_id, results
