@@ -10,7 +10,6 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
 
-# ---------- CONFIG ---------- #
 CHROMA_PATH = "./chroma/rag"
 COLLECTION_NAME = "chunks"
 MODEL_ID = "neuralmind/bert-large-portuguese-cased"
