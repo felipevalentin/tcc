@@ -37,7 +37,7 @@ def read_json_to_dict_of_samples(
 
 
 def read_csv_to_dict_of_ground_truth(
-    file_path: Path = Path("./resources/ground_truth_gold_standard.csv"),
+    file_path: Path = Path("./resources/ground_truth_gold.csv"),
 ) -> Dict[str, GroundTruth]:
     """
     Reads a CSV file and converts it to a dictionary of GroundTruth objects.
