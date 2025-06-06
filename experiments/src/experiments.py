@@ -115,7 +115,6 @@ def process_prompts(
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ]
-
     return prompts
 
 
@@ -148,7 +147,7 @@ def run():
             continue
 
         exp_name = file.stem
-        if exp_name not in ["llm"]:
+        if exp_name not in ["llm", "rag", "improvement", "shots"]:
             continue
 
         with file.open() as f:
