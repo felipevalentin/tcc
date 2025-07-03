@@ -1,3 +1,3 @@
 # Trabalho de Conclusão de Curso
 
-Aluno: Felipe Valentin Nascimento
+The code use [uv](https://docs.astral.sh/uv/).
