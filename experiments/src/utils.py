@@ -8,11 +8,10 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, Union
 
-from bs4 import BeautifulSoup
-from pydantic import ValidationError
-
 import logger
+from bs4 import BeautifulSoup
 from data.models import GroundTruth, Sample
+from pydantic import ValidationError
 
 logger = logger.get_logger(__name__)
 

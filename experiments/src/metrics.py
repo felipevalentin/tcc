@@ -5,7 +5,6 @@ from typing import Union, get_args, get_origin
 import Levenshtein
 import unidecode
 from data.experiment import ExperimentConfig
-
 from logger import get_logger
 
 logger = get_logger(__name__)

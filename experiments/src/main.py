@@ -1,7 +1,8 @@
 from time import perf_counter
 
-from experiments import run
 from logger import get_logger
+
+from experiments import run
 
 logger = get_logger(__name__)
 

@@ -1,9 +1,8 @@
 from enum import StrEnum
-from typing import Dict, List, Type, Union, Optional
-
-from pydantic import BaseModel, field_validator
+from typing import Dict, List, Optional, Type, Union
 
 from data.models import LicitacaoV0, LicitacaoV1, LicitacaoV2, LicitacaoV3
+from pydantic import BaseModel, field_validator
 
 schema_version_to_extraction_model: Dict[
     int,

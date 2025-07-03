@@ -1,14 +1,13 @@
 import hashlib
 import os
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
 import chromadb
-from transformers import AutoModel, AutoTokenizer
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
-
+from langchain_huggingface.embeddings import HuggingFaceEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from transformers import AutoModel, AutoTokenizer
 
 CHROMA_PATH = "./chroma/rag"
 COLLECTION_NAME = "chunks"
@@ -39,7 +38,9 @@ def _get_model_tokenizer_embedding():
     )
     return model, tokenizer, embedding
 
+
 _MODEL, _TOKENIZER, _EMBEDDING = _get_model_tokenizer_embedding()
+
 
 def _chunk_text(text: str, chunk_size: int, overlap: int) -> List[str]:
     len_token = lambda x: len(_TOKENIZER.tokenize(x))
@@ -75,9 +76,7 @@ def get_chunks(
         client.delete_collection(COLLECTION_NAME)
     except:
         print("no collection")
-    client.create_collection(
-        COLLECTION_NAME
-    )
+    client.create_collection(COLLECTION_NAME)
     vector_store_from_client = Chroma(
         collection_name=COLLECTION_NAME,
         embedding_function=_EMBEDDING,

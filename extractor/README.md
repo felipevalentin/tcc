@@ -1,4 +1,5 @@
 # Extractor
+Uses the best solution from the experiments
 
 Run: `uv run main.py`
 

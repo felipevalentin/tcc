@@ -2,12 +2,13 @@ import json
 import time
 from typing import Dict, List
 
-import ollama
-import yaml
-import metrics, examples, rag
-
 import config
+import examples
+import metrics
+import ollama
+import rag
 import utils
+import yaml
 from data import experiment
 from logger import get_logger
 
