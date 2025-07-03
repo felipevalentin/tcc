@@ -108,7 +108,7 @@ def process_prompts(
 
     if experiment_config.single_prompt:
         prompts = [
-            {"role": "user", "content": system.replace("{CONTEXTO}", user)},
+            {"role": "system", "content": system.replace("{CONTEXTO}", user)},
         ]
     else:
         prompts = [
