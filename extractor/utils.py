@@ -1,6 +1,14 @@
-from bs4 import BeautifulSoup
+import functools
 import html
 import re
+import time
+
+import log
+from bs4 import BeautifulSoup
+from pydantic import ValidationError
+
+logger = log.get_logger(__name__)
+
 
 def clean_html_text(input_text: str) -> str:
     """

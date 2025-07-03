@@ -1,4 +1,4 @@
-"""
+PROMPT = """
 Você é um especialista em licitação brasileira.
 
 Extraia as seguintes entidades do documento de licitação no # Contexto

@@ -4,6 +4,20 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+
+class RawPublication(BaseModel):
+    codigo: str
+    titulo: str
+    data: str
+    cod_registro_info_sfinge: Optional[str] = None
+    municipio: Optional[str] = None
+    entidade: str
+    categoria: str
+    link: str
+    texto: str
+    url: str
+
+
 class Modalidade(StrEnum):
     CONCORRENCIA = "Concorrência"
     CONCURSO = "Concurso"
@@ -40,6 +54,7 @@ class TipoDoDocumento(StrEnum):
     JULGAMENTO = "Julgamento"
     RESULTADO = "Resultado"
     RATIFICACAO = "Ratificação"
+
 
 class Municipio(StrEnum):
     ABDON_BATISTA = "Abdon Batista"
@@ -337,6 +352,7 @@ class Municipio(StrEnum):
     XAVANTINA = "Xavantina"
     XAXIM = "Xaxim"
     ZORTEA = "Zortéa"
+
 
 class Licitacao(BaseModel):
     tipo_do_documento: TipoDoDocumento

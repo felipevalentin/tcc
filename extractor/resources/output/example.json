@@ -1,0 +1,41 @@
+{
+  "6323537": {
+    "tipo_do_documento": "Ata de Registro de Preços",
+    "numero_do_processo_licitatorio": "2024000001/001",
+    "municipio": "Ponte Serrada",
+    "modalidade": "Dispensa de Licitação",
+    "formato_da_modalidade": "Presencial",
+    "numero_da_modalidade": "01/2024",
+    "objeto": "Aquisição de materiais para manutenção de veículos",
+    "data_de_abertura": "2002-02-15T10:00",
+    "site_do_edital": "https://www.ponteserrada.sc.gov.br/licitacoes",
+    "signatario": "Alceu Alberto Wrubel",
+    "cargo_do_signatario": "Prefeito Municipal"
+  },
+  "6455525": {
+    "tipo_do_documento": "Aviso de Licitação",
+    "numero_do_processo_licitatorio": "144/2024",
+    "municipio": "Araranguá",
+    "modalidade": "Credenciamento",
+    "formato_da_modalidade": null,
+    "numero_da_modalidade": "144/2024",
+    "objeto": "Aquisição de gêneros alimentícios diretamente da agricultura Familiar e empreendedor familiar rural ou suas organizações, destinados ao Programa Nacional de Alimentação Escolar - PNAE, para atender as unidades de ensino da Rede Municipal",
+    "data_de_abertura": null,
+    "site_do_edital": "www.ararangua.sc.gov.br",
+    "signatario": "Volnei Roniel Bianchin da Silva",
+    "cargo_do_signatario": "Secretário de Administração"
+  },
+  "6089552": {
+    "tipo_do_documento": "Aviso de Licitação",
+    "numero_do_processo_licitatorio": "056/2024",
+    "municipio": "Salto Veloso",
+    "modalidade": "Dispensa de Licitação",
+    "formato_da_modalidade": null,
+    "numero_da_modalidade": "028/2024",
+    "objeto": "Contratação de empresa especializada para manutenção do equipamento, trator cortador de grama da Secretaria de Transportes, Obras e Urbanismo de acordo com as especificações do termo de referência.",
+    "data_de_abertura": null,
+    "site_do_edital": null,
+    "signatario": "DÉBORA BARONCHELLO ANSILIERO",
+    "cargo_do_signatario": "Agente de Contratação"
+  }
+}
