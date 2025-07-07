@@ -10,7 +10,7 @@ Extraia as seguintes entidades do documento de licitação no # Contexto
 - Número da modalidade [string] ^\d+/\d+$
 - Descrição do Objeto [string] ^.+$
 - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-- URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+- Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
 - Nome do Signatário [string|null] ^.+$
 - Cargo do signatário [string|null] ^.+$
 
@@ -34,7 +34,7 @@ Retorne no formato JSON.
     "número_da_modalidade": "89/2023",
     "objeto": "MURO PRÉ- FABRICADO M PROPRIA",
     "data_de_abertura": null,
-    "informações_do_edital": null,
+    "site_do_edital": null,
     "signatário": RAFAEL ROTTILI ROEDER",
     "cargo_do_signatário": "Secretário de Planejamento"
 }
@@ -49,7 +49,7 @@ Retorne no formato JSON.
     "número_da_modalidade": "6/2023",
     "objeto": "Pregão Eletrônico para Registro de Preço visando a contratação de empresa especializada em prestação de serviço na manutenção corretiva, preventiva e estética na área mecânica, funilaria, pintura(c/adesivação), elétrica(eletrônica), tapeçaria e borracharia de veículos automotores com fornecimento e substituição de peças, materiais e acessórios em estado novo, originais dos fabricantes das marcas dos veículos e com desconto de 5% (cinco por cento) sobre os preços das tabelas e catálogos dos fabricantes ou revendas autorizadas, para atender a manutenção da frota das Secretarias, Fundos, Fundações, Polícia Militar e Corpo de Bombeiros Militar de Navegantes",
     "data_de_abertura": "2023-05-31T14:00",
-    "informações_do_edital": "www.navegantes.sc.gov.br",
+    "site_do_edital": "www.navegantes.sc.gov.br",
     "signatário": "Libardoni Fronza",
     "cargo_do_signatário": "Prefeito"
 }

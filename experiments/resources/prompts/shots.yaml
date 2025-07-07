@@ -16,7 +16,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -51,7 +51,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -86,7 +86,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -121,7 +121,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -156,7 +156,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -191,7 +191,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -226,7 +226,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -261,7 +261,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -296,7 +296,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -331,7 +331,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -366,7 +366,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -402,7 +402,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
@@ -438,7 +438,7 @@
     - Número da modalidade [string] ^\d+/\d+$
     - Descrição do Objeto [string] ^.+$
     - Data de abertura [string|null] \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$
-    - URL do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
+    - Site do edital [string|null] ^(https?:\/\/|www\.)[^\s]+$
     - Nome do Signatário [string|null] ^.+$
     - Cargo do signatário [string|null] ^.+$
     
